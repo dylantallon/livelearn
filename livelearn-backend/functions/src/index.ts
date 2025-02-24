@@ -1,19 +1,41 @@
-/**
- * Import function triggers from their respective submodules:
- *
- * import {onCall} from "firebase-functions/v2/https";
- * import {onDocumentWritten} from "firebase-functions/v2/firestore";
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
- */
-
+import express from "express";
+import cors from "cors";
 import {onRequest} from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
 
-// Start writing functions
-// https://firebase.google.com/docs/functions/typescript
+import router from "./routes";
 
-export const helloWorld = onRequest((request, response) => {
-  logger.info("Hello logs!", {structuredData: true});
-  response.send("Hello from Firebase!");
+const port = 5000;
+const app = express();
+
+// Set up middleware to parse incoming request body
+app.use(express.urlencoded({extended: true}));
+app.use(express.json());
+app.use(cors());
+
+process.on("SIGINT", () => {
+  logger.log("Stopping the server");
+  process.exit();
 });
+
+app.use((req, res, next) => {
+  const logString = `${req.url} ${req.headers['user-agent']} ${JSON.stringify(req.body)}`;
+  logger.log(`A request has been made: ${logString}`);
+  next();
+});
+
+app.use("/api/v1", router);
+
+app.use((req, res) => {
+  logger.warn(`Client tried to access unknown url ${req.url}`);
+  res.status(404).json({
+    type: "error",
+    message: "The URL you are trying to reach is not hosted on our server",
+  });
+});
+
+app.listen(port, () => {
+  logger.log(`The server started listening on port ${port}`);
+});
+
+export const api = onRequest(app);
