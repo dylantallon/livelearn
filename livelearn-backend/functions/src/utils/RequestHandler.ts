@@ -23,7 +23,7 @@ class RequestHandler {
     res.redirect(302, url);
   }
 
-  sendClientError(req: Request, res: Response, message: string, status: number) {
+  sendClientError(req: Request, res: Response, message: string, status?: number) {
     const url = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
     logger.log(`A request has been returned with client error: ${message}`, {url: url});
 
@@ -33,13 +33,13 @@ class RequestHandler {
     });
   }
 
-  sendServerError(req: Request, res: Response, error: any) {
+  sendServerError(req: Request, res: Response, message: string, status?: number) {
     const url = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
-    logger.error(error.message, {url: url});
+    logger.error(message, {url: url});
 
-    return res.status(error.status || 500).json({
+    return res.status(status || 500).json({
       type: 'error',
-      message: error.message || 'Unhandled server error',
+      message: message || 'Unhandled server error',
     });
   }
 }
