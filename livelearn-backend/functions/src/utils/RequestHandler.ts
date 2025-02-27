@@ -33,13 +33,13 @@ class RequestHandler {
     });
   }
 
-  sendServerError(req: Request, res: Response, message: string, status?: number) {
+  sendServerError(req: Request, res: Response, error: any) {
     const url = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
-    logger.error(message, {url: url});
+    logger.error(error.message, {error: error, url: url});
 
-    return res.status(status || 500).json({
+    return res.status(error.status || 500).json({
       type: 'error',
-      message: message || 'Unhandled server error',
+      message: error.message || 'Unhandled server error',
     });
   }
 }
