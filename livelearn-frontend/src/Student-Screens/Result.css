@@ -21,7 +21,7 @@
     color: white;
     text-align: center;
     padding: 0.5rem 0;
-    font-size: 1rem;
+    font-size: 1.8rem;
     justify-content: center;
     display: flex;
     align-items: center;
@@ -42,7 +42,7 @@
 /* "You answered" text */
 .answer-text {
     font-size: 2rem;
-    color: white;
+    color:white;
     font-weight: bold;
 }
 
@@ -50,7 +50,7 @@
 .answer-box {
     background-color: white;
     border: 2px solid black;
-    color: black;
+    color: rgb(0, 0, 0);
     border-radius: 10px;
     padding: 2rem;
     font-size: 1.8rem;
