@@ -9,7 +9,7 @@
   width: 100vw;
   box-sizing: border-box;
   background-color: #ffffff;
-  overflow: hidden;
+  overflow: auto;
 }
 
 .title {

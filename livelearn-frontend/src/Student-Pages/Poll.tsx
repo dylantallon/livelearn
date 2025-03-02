@@ -1,8 +1,8 @@
 import React from "react";
 import { useNavigate } from 'react-router-dom';
-import "./Survey.css";
+import "./Poll.css";
 
-function Survey() {
+function Poll() {
   const navigate = useNavigate();
 
   const surveys = [
@@ -28,7 +28,7 @@ function Survey() {
     <div className="app-container">
       <h1 className="title">LiveLearn</h1>
       <p className="subtitle">
-        Click on a survey and press start session to begin a session
+        Click on a poll and press start session to begin a session
       </p>
 
       <div className="survey-list">
@@ -42,7 +42,7 @@ function Survey() {
             </div>
             <div className="survey-actions">
               <button className="btn-delete">Delete</button>
-              <button className="btn-edit">Edit Survey</button>
+              <button className="btn-edit">Edit Poll</button>
               <button onClick={handleScoreClick} className="btn-view-scores">View Scores</button>
             </div>
           </div>
@@ -57,4 +57,4 @@ function Survey() {
   );
 }
 
-export default Survey;
+export default Poll;
