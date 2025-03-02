@@ -3,15 +3,15 @@ import { useNavigate } from "react-router-dom";
 import "./LoadingScreen.css"
 
 const LoadingScreen: React.FC = () => {
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   const timer = setTimeout(() => {
-  //     navigate("/MCQ"); // Redirects to another page after 10s
-  //   }, 2500);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      navigate("/MCQ"); // Redirects to another page after 10s
+    }, 2500);
 
-  //   return () => clearTimeout(timer);
-  // }, [navigate]);
+    return () => clearTimeout(timer);
+  }, [navigate]);
 
   return (
     <div className="default">

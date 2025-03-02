@@ -42,6 +42,7 @@
 /* "You answered" text */
 .answer-text {
     font-size: 2rem;
+    color: white;
     font-weight: bold;
 }
 

@@ -1,0 +1,31 @@
+.back-div {
+  margin-top: 20px;
+  margin-left: 20px;
+  margin-bottom: 40px;
+}
+
+.btn-back {
+  padding: 0.5rem 1rem;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  background-color: #636363;
+}
+.score-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  align-items: safe center;
+  justify-content: safe center;
+  overflow: auto;
+  margin-left: 50px;
+  margin-right: 50px;
+  border-radius: 5px;
+  height: auto;
+  max-height: calc(100vh - 270px);
+  overflow: auto;
+  background-color: #cacaca;
+  padding: 0.75rem; 
+}  

@@ -1,0 +1,117 @@
+.app-container {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: none;
+  padding: none;
+  font-family: sans-serif;;
+  height: 100vh;
+  width: 100vw;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  overflow: auto;
+}
+
+.title {
+  font-size: 3rem;
+  padding: 20px;
+  color: #ffffff;
+  background-color: #007bff;
+  text-align: left;
+  margin-bottom: 30px;
+  line-height: 1;
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  color: #000000;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.survey-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  align-items: safe center;
+  justify-content: safe center;
+  overflow: auto;
+  margin-left: 50px;
+  margin-right: 50px;
+  border-radius: 5px;
+  height: auto;
+  max-height: calc(100vh - 280px);
+  overflow: auto;
+  background-color: #cacaca;
+  padding: 0.75rem; 
+}
+
+.survey-row {
+  background-color: #ffffff;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 5px;
+  width: calc(100% - 40px);
+}
+
+.survey-name {
+  flex: 2;
+  font-size: 1.1rem;
+  margin-right: 1rem;
+  text-align: left;
+}
+
+.survey-questions {
+  flex: 1;
+  text-align: center;
+  margin-right: 1rem;
+}
+
+.survey-actions {
+  flex: 2;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+button {
+  padding: 0.5rem 1rem;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  border-radius: 4px;
+}
+
+.btn-delete {
+  background-color: #c95151;
+  color: white;
+}
+
+.btn-edit {
+  background-color: #636363;
+}
+
+.btn-view-scores {
+  background-color: #636363;
+}
+
+.bottom-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+
+.btn-new-survey {
+  background-color: #56ae5f;
+  border: none;
+}
+
+.btn-start-session {
+  background-color: #636363;
+  color: #fff;
+}

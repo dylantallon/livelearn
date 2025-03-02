@@ -12,6 +12,7 @@
 /* Message for correct/wrong */
 .feedback-message {
     font-size: 1.5rem;
+    color: white;
     margin-top: 1rem;
 }
 
@@ -39,4 +40,9 @@
     align-items: center;
     line-height: 10rem;
     font-weight: bold;
+}
+
+.answer
+{
+    color: white;
 }

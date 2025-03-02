@@ -30,7 +30,7 @@ const Feedback: React.FC = () => {
       <div className="feedback-header">
         <h1>LiveLearn</h1>
       </div>        
-      <h1>{isCorrect ? "✅ Correct!" : "❌ Wrong!"}</h1>
+      <h1 className="answer"> {isCorrect ? "✅ Correct!" : "❌ Wrong!"}</h1>
       <p className="feedback-message">
         The correct answer was: <strong>{correctAnswer}</strong>
       </p>
