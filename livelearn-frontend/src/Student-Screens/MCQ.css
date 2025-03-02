@@ -1,0 +1,97 @@
+/* Ensure no scrollbars & proper sizing */
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevents unwanted scrollbars */
+  box-sizing: border-box;
+  height: 100%; /* Ensures full height coverage */
+}
+
+/* Main container to align question & choices */
+.main-container {
+  display: flex;
+  align-items: center; /* Keep vertical alignment */
+  justify-content: flex-start; /* Moves everything to the left */
+  width: 100vw;
+  height: 100vh;
+  background-color: #2f2b2b;
+  padding: 2rem 5rem; /* Adds equal left and right padding */
+  box-sizing: border-box;
+  overflow: hidden;
+  gap: 5rem; /* Adds spacing between question box and choices */
+}
+
+/* Question box styling */
+.question-box {
+  width: 40%; /* Explicit width */
+  height: 70%;
+  color: black;
+  background-color: white;
+  border-radius: 15px;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+  margin-left: 0; /* Ensures it stays on the left */
+  margin-top: 5rem;
+}
+
+/* Choices container */
+.choices-box {
+  width: 50%; /* Ensures it stays within half the screen */
+  display: flex;
+  flex-direction: column;
+  align-items: stretch; /* Ensures choices fit inside */
+  justify-content: flex-start;
+  gap: 1.5rem; /* Reduce gap to prevent excess spacing */
+  overflow: hidden; /* Ensures no overflow */
+  margin-top: 5rem;
+}
+
+/* Choice boxes */
+.choice {
+  background-color: white;
+  color: black;
+  padding: 2rem;
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  border-radius: 15px;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: 0.3s;
+  width: 100%; /* Ensures choices stay within container */
+  max-width: 100%; /* Prevents choices from exceeding the parent */
+  box-sizing: border-box; /* Prevents padding from increasing width */
+}
+
+.MCQ-header {
+  position: fixed; /* Keeps it at the top of the screen */
+  top: 0;
+  left: 0;
+  width: 100vw; /* Full width of the screen */
+  height: 80px;
+  background-color: #007bff; /* Blue header */
+  color: white;
+  text-align: center;
+  padding: 0.5rem 0;
+  font-size: 1rem;
+  justify-content: center;
+  display: flex;
+  align-items: center;
+  line-height: 10rem;
+  font-weight: bold;
+}
+
+/* Ensure first choice aligns with top of question box */
+.choice:first-child {
+  margin-top: 0;
+}
+
+/* Hover effect for choices */
+.choice:hover {
+  background-color: #f18730;
+}
