@@ -1,0 +1,65 @@
+/* Center the content */
+.result-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    text-align: center;
+    font-size: 3rem;
+    font-weight: bold;
+}
+
+/* Header styling */
+.Result-header {
+    position: fixed; /* Keeps it at the top of the screen */
+    top: 0;
+    left: 0;
+    width: 100vw; /* Full width of the screen */
+    height: 80px;
+    background-color: #007bff; /* Blue header */
+    color: white;
+    text-align: center;
+    padding: 0.5rem 0;
+    font-size: 1rem;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    line-height: 10rem;
+    font-weight: bold;
+}
+
+/* Container for "You answered" text and answer box */
+.answer-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    margin-top: 2rem; /* Pushes content slightly down */
+    width: 60%; /* Limits width for readability */
+}
+
+/* "You answered" text */
+.answer-text {
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+/* Box that displays the answer */
+.answer-box {
+    background-color: white;
+    border: 2px solid black;
+    color: black;
+    border-radius: 10px;
+    padding: 2rem;
+    font-size: 1.8rem;
+    font-weight: bold;
+    width: 80%; /* Matches answer-section width */
+    min-height: 6rem; /* Ensures a larger default height */
+    max-height: 40vh; /* Prevents it from being too large */
+    overflow-y: auto; /* Allows scrolling for very long answers */
+    word-wrap: break-word; /* Breaks long words to prevent overflow */
+    text-align: center;
+    margin-bottom: 3rem;
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+}
