@@ -1,6 +1,7 @@
-import { Router } from "express";
+import {Router} from "express";
 import LtiController from "../controllers/ltiController";
 
+// eslint-disable-next-line new-cap
 const ltiRouter = Router();
 const ltiController = new LtiController();
 

@@ -1,17 +1,18 @@
+/* eslint-disable require-jsdoc */
 import * as logger from "firebase-functions/logger";
-import { Request, Response } from "express";
+import {Request, Response} from "express";
 
 class RequestHandler {
   sendSuccess(res: Response, message?: string, status?: number) {
     logger.log(`A request has been made and proccessed successfully at: ${new Date()}`);
-    
+
     return (data?: any, globalData?: any) => {
       if (!status) {
         status = 200;
       }
       res.status(status).json({
-        type: 'success',
-        message: message || 'Success result',
+        type: "success",
+        message: message || "Success result",
         data,
         ...globalData,
       });
@@ -24,22 +25,22 @@ class RequestHandler {
   }
 
   sendClientError(req: Request, res: Response, message: string, status?: number) {
-    const url = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+    const url = `${req.protocol}://${req.get("host")}${req.originalUrl}`;
     logger.log(`A request has been returned with client error: ${message}`, {url: url});
 
     return res.status(status || 400).json({
-      type: 'error',
+      type: "error",
       message: message,
     });
   }
 
   sendServerError(req: Request, res: Response, error: any) {
-    const url = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+    const url = `${req.protocol}://${req.get("host")}${req.originalUrl}`;
     logger.error(error.message, {error: error, url: url});
 
     return res.status(error.status || 500).json({
-      type: 'error',
-      message: error.message || 'Unhandled server error',
+      type: "error",
+      message: error.message || "Unhandled server error",
     });
   }
 }

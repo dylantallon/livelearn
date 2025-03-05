@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { create } from "xmlbuilder2";
+import {create} from "xmlbuilder2";
 
 // eslint-disable-next-line require-jsdoc
 function generateLtiConfigXml() {
@@ -65,4 +65,4 @@ function generateLtiConfigXml() {
   return xmlRoot.end({prettyPrint: true});
 }
 
-export { generateLtiConfigXml };
+export {generateLtiConfigXml};

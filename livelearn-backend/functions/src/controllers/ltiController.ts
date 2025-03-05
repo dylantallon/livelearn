@@ -1,17 +1,18 @@
+/* eslint-disable require-jsdoc */
 import * as logger from "firebase-functions/logger";
-import { Request, Response } from "express";
-import { FieldValue } from "firebase-admin/firestore";
+import {Request, Response} from "express";
+import {FieldValue} from "firebase-admin/firestore";
 
-import { db } from "../config/firebaseConfig";
-import { generateLtiConfigXml } from "../utils/generateLtiConfigXml";
-import { 
+import {db} from "../config/firebaseConfig";
+import {generateLtiConfigXml} from "../utils/generateLtiConfigXml";
+import {
   getInstructorRoles,
   getAssistantRoles,
   getObserverRoles,
   getClientIdAndSecret,
 } from "../utils/LtiUtils";
-import { livelearnDomain } from "../utils/constants";
-import { requestAccessToken } from "../utils/TokenHandler";
+import {livelearnDomain} from "../utils/constants";
+import {requestAccessToken} from "../utils/TokenHandler";
 import RequestHandler from "../utils/RequestHandler";
 
 const requestHandler = new RequestHandler();
@@ -34,18 +35,18 @@ class LtiController {
       !context_title ||
       !roles
     ) {
-      return requestHandler.sendClientError(req, res, 'Missing required LTI parameters', 400);
+      return requestHandler.sendClientError(req, res, "Missing required LTI parameters", 400);
     }
 
     try {
       const canvasURL = custom_canvas_api_domain;
       const {clientId} = await getClientIdAndSecret(canvasURL);
-      const canvasDomain = canvasURL.substring(0, canvasURL.indexOf('.'));
+      const canvasDomain = canvasURL.substring(0, canvasURL.indexOf("."));
       const userId = custom_canvas_user_id + canvasDomain;
       const courseId = custom_canvas_course_id + canvasDomain;
 
-      // Check user's role
-      const rolesArray = roles.split(',');
+      // Check user"s role
+      const rolesArray = roles.split(",");
       let role = "Learner";
       if (getObserverRoles().some((role) => rolesArray.includes(role))) {
         return requestHandler.sendClientError(req, res, "User is not a student", 401);
@@ -64,7 +65,7 @@ class LtiController {
           return requestHandler.sendClientError(req, res, "Instructor must enable the course", 401);
         }
         const paramsId = crypto.randomUUID();
-        const paramsRef = db.collection('temp').doc(paramsId);
+        const paramsRef = db.collection("temp").doc(paramsId);
         await paramsRef.set({
           courseId: courseId,
           courseName: context_title,
@@ -89,38 +90,38 @@ class LtiController {
 
   async getLtiConfig(req: Request, res: Response) {
     const xml = generateLtiConfigXml();
-    res.set('Content-Type', 'application/xml');
+    res.set("Content-Type", "application/xml");
     res.send(xml);
   }
 
   async enableCourse(req: Request, res: Response) {
     try {
       const {code, state} = req.body;
-      const paramsRef = db.collection('temp').doc(state);
+      const paramsRef = db.collection("temp").doc(state);
       const paramsDoc = await paramsRef.get();
       const courseId = paramsDoc.data()?.courseId;
       const courseName = paramsDoc.data()?.courseName;
       const userId = paramsDoc.data()?.userId;
 
-      logger.log('Enable course request received', courseId);
+      logger.log("Enable course request received", courseId);
 
       // Check if required parameters are present in request body
       if (!courseId || !courseName || !userId || !code) {
-        return requestHandler.sendClientError(req, res, 'Missing required parameters', 400);
+        return requestHandler.sendClientError(req, res, "Missing required parameters", 400);
       }
 
-      // Generate instructor's Canvas tokens for this course
+      // Generate instructor"s Canvas tokens for this course
       const firstLetter = userId.search(/[A-Z]/i);
       const canvasURL = `${userId.substring(firstLetter)}.instructure.com`;
       const tokenResponse = await requestAccessToken(code, canvasURL);
       const token = tokenResponse.access_token;
       const refreshToken = tokenResponse.refresh_token;
       if (!token || !refreshToken) {
-        return requestHandler.sendClientError(req, res, 'Invalid LTI tokens', 400);
+        return requestHandler.sendClientError(req, res, "Invalid LTI tokens", 400);
       }
 
       // Create course on Firebase
-      const courseRef = db.collection('courses').doc(courseId);
+      const courseRef = db.collection("courses").doc(courseId);
       await courseRef.set({
         courseId: courseId,
         courseName: courseName,

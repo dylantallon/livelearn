@@ -19,7 +19,7 @@ process.on("SIGINT", () => {
 });
 
 app.use((req, res, next) => {
-  const logString = `${req.url} ${req.headers['user-agent']} ${JSON.stringify(req.body)}`;
+  const logString = `${req.url} ${req.headers["user-agent"]} ${JSON.stringify(req.body)}`;
   logger.log(`A request has been made: ${logString}`);
   next();
 });

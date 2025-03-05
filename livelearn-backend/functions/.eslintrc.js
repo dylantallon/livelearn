@@ -30,6 +30,9 @@ module.exports = {
     "quotes": ["error", "double"],
     "import/no-unresolved": 0,
     "indent": ["error", 2],
-    "max-len": {code: 100},
+    "max-len": ["error", 100],
+    "camelcase": ["off"],
+    "brace-style": ["off"],
+    "linebreak-style": ["error", "windows"],
   },
 };
