@@ -27,10 +27,10 @@ function generateLtiConfigXml() {
   }).txt( "A polling and attendance app in Canvas");
   xmlRoot.ele("blti:launch_url", {
     "xmlns:blti": "http://www.imsglobal.org/xsd/imsbasiclti_v1p0",
-  }).txt( "https://us-central1-livelearn-backend.cloudfunctions.net/api/v1/lti/launch");
+  }).txt( "https://us-central1-livelearn-fe28b.cloudfunctions.net/api/v1/lti/launch");
   xmlRoot.ele("blti:secure_launch_url", {
     "xmlns:blti": "http://www.imsglobal.org/xsd/imsbasiclti_v1p0",
-  }).txt( "https://us-central1-livelearn-backend.cloudfunctions.net/api/v1/lti/launch");
+  }).txt( "https://us-central1-livelearn-fe28b.cloudfunctions.net/api/v1/lti/launch");
   xmlRoot.ele("blti:vendor");
 
   const bltiExtensions = xmlRoot.ele("blti:extensions", {

@@ -24,7 +24,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/api/v1", router);
+app.use("/v1", router);
 
 app.use((req, res) => {
   logger.warn(`Client tried to access unknown url ${req.url}`);
