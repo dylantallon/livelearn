@@ -45,7 +45,7 @@ class LtiController {
       const userId = custom_canvas_user_id + canvasDomain;
       const courseId = custom_canvas_course_id + canvasDomain;
 
-      // Check user"s role
+      // Check user's role
       const rolesArray = roles.split(",");
       let role = "Learner";
       if (getObserverRoles().some((role) => rolesArray.includes(role))) {
@@ -59,7 +59,7 @@ class LtiController {
       }
 
       // Redirect to enable course if it does not exist
-      const courseDoc = await db.collection("courses").doc(custom_canvas_course_id).get();
+      const courseDoc = await db.collection("courses").doc(courseId).get();
       if (!courseDoc.exists) {
         if (role !== "Instructor") {
           return requestHandler.sendClientError(req, res, "Instructor must enable the course", 401);
@@ -79,9 +79,24 @@ class LtiController {
         return requestHandler.sendRedirect(res, `${canvasAuthUrl}?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&state=${paramsId}`);
       }
 
-      // Course exists, return auth token to log in user
+      // Course exists, update course details
+      const updatedCourse: any = {};
+      if (courseDoc.data()!.name !== context_title) {
+        updatedCourse.name = context_title;
+      }
+      if (role === "Instructor" && !courseDoc.data()!.instructors.includes(userId)) {
+        updatedCourse.instructors = FieldValue.arrayUnion(userId);
+      }
+      else if (courseDoc.data()!.instructors.includes(userId) && role !== "Instructor") {
+        updatedCourse.instructors = FieldValue.arrayRemove(userId);
+      }
+      if (Object.keys(updatedCourse).length) {
+        await courseDoc.ref.update(updatedCourse);
+      }
+
+      // Return auth token to log in user
       const loginId = "temp";
-      return requestHandler.sendRedirect(res, `https://${livelearnDomain}/login?id=${loginId}`);
+      return requestHandler.sendRedirect(res, `https://${livelearnDomain}?token=${loginId}`);
     }
     catch (error) {
       return requestHandler.sendServerError(req, res, error);
