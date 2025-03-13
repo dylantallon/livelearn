@@ -35,7 +35,7 @@ function Score() {
       <div className="app-container">
         <h1 className="title">LiveLearn</h1>
         <div className = "back-div" >
-            <button className="btn-back" onClick={handleBackClick}> ⟵ Back</button>
+            <button className="btn-back" onClick={handleBackClick}>⟵</button>
         </div>
         <div className="score-list">
           {students.map((student) => (

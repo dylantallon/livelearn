@@ -7,6 +7,7 @@ import Feedback from './Student-Screens/Feedback.tsx';
 import Start from './Start.tsx'
 import Poll from './Teacher-Screens/Poll.tsx'
 import Score from './Teacher-Screens/Score.tsx';
+import Edit from './Teacher-Screens/Edit.tsx';
 import './index.css'
 
 createRoot(document.getElementById('root')!).render(
@@ -15,6 +16,7 @@ createRoot(document.getElementById('root')!).render(
       <Route path="/" element={<Start />} />
       <Route path="/poll" element={<Poll />} />
       <Route path="/scores" element={<Score />} />
+      <Route path="/edit" element={<Edit />} />
       
       <Route path="/loading" element={<LoadingScreen />} />
       <Route path="/MCQ" element={<MCQ />} />

@@ -1,16 +1,20 @@
 .back-div {
   margin-top: 20px;
-  margin-left: 20px;
-  margin-bottom: 40px;
+  margin-left: 50px;
+  margin-right: 50px;
+  margin-bottom: 30px;
 }
 
 .btn-back {
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.5rem;
   border: none;
   cursor: pointer;
   font-size: 0.9rem;
   border-radius: 4px;
   background-color: #636363;
+  position: fixed;
+  top: 118px; /* Distance from the top */
+  left: 8px; /* Distance from the left */
 }
 .score-list {
   display: flex;
@@ -24,8 +28,9 @@
   margin-right: 50px;
   border-radius: 5px;
   height: auto;
-  max-height: calc(100vh - 270px);
+  max-height: calc(100vh - 175px);
   overflow: auto;
   background-color: #cacaca;
+  border: 3px solid #cacaca;
   padding: 0.75rem; 
 }  
