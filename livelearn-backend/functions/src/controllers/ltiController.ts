@@ -2,6 +2,7 @@
 import * as logger from "firebase-functions/logger";
 import {Request, Response} from "express";
 import {FieldValue} from "firebase-admin/firestore";
+import {getAuth} from "firebase-admin/auth";
 
 import {db} from "../config/firebaseConfig";
 import {generateLtiConfigXml} from "../utils/generateLtiConfigXml";
@@ -95,7 +96,7 @@ class LtiController {
       }
 
       // Return auth token to log in user
-      const loginId = "temp";
+      const loginId = await getAuth().createCustomToken(userId);
       return requestHandler.sendRedirect(res, `https://${livelearnDomain}?token=${loginId}`);
     }
     catch (error) {
@@ -147,7 +148,7 @@ class LtiController {
       await paramsRef.delete();
 
       // Return auth token to log in user
-      const loginId = "temp";
+      const loginId = await getAuth().createCustomToken(userId);
       return requestHandler.sendRedirect(res, `https://${livelearnDomain}/login?id=${loginId}`);
     }
     catch (error) {
