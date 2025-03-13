@@ -9,7 +9,7 @@
     width: 100vw;
     box-sizing: border-box;
     background-color: #ffffff;
-    overflow: auto;
+    overflow: hidden;
   }
 
   .button-div {
@@ -17,6 +17,6 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    margin-top: 25%;
+    margin-top: 50vh;
     gap: 2rem;
   }
