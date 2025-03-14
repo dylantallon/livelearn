@@ -1,0 +1,96 @@
+/* Ensure no scrollbars & proper sizing */
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    height: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* FRQ Container */
+  .frq-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    background-color: #2f2b2b;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  
+  /* Header */
+  .FRQ-header {
+    justify-content: center;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 80px;
+    background-color: #007bff;
+    color: white;
+    text-align: center;
+    padding: 0.5rem 0;
+    font-size: 1.8rem;
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+  }
+  
+  /* Content area */
+  .frq-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: calc(100vh - 80px);
+    padding: 2rem 5rem;
+    box-sizing: border-box;
+  }
+  
+  /* Question box styling */
+  .frq-question-box {
+    color: black;
+    background-color: white;
+    border-radius: 15px;
+    padding: 2rem;
+    font-size: 2rem;
+    font-weight: bold;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    max-width: 80%;
+    margin-bottom: 2rem;
+  }
+  
+  /* Textarea for response */
+  .answer-box {
+    width: 80%;
+    height: 150px;
+    font-size: 1.5rem;
+    padding: 1rem;
+    border-radius: 10px;
+    border: 2px solid #ccc;
+    resize: none;
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+    background-color: white;
+    color: black;
+  }
+  
+  /* Submit button */
+  .submit-button {
+    margin-top: 1.5rem;
+    padding: 1rem 2rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    background-color: #f18730;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  /* Hover effect */
+  .submit-button:hover {
+    background-color: #e6761c;
+  }
+  
