@@ -9,6 +9,8 @@ import "./Poll.css";
 function Poll() {
   const navigate = useNavigate();
 
+  const [selectedSurveyId, setSelectedSurveyId] = useState<number | null>(null);
+
   const [surveys, setSurveys] = useState([
     { id: 1, title: "Poll 1", questions: 10 },
     { id: 2, title: "Poll 2", questions: 10 },
@@ -26,7 +28,11 @@ function Poll() {
   };
 
   const handleDeleteClick = (id: number) => {
-    setSurveys(surveys.filter((survey) => survey.id !== id))
+    setSurveys((prevSurveys) => {
+      const updatedSurveys = prevSurveys.filter((survey) => survey.id !== id);
+      setSelectedSurveyId((prevSelectedId) => (prevSelectedId === id ? null : prevSelectedId));
+      return updatedSurveys;
+    });
   }
 
   const handleAddPoll = () => {
@@ -39,8 +45,28 @@ function Poll() {
     setSurveys([...surveys, newPoll])
   }
 
+  const handleRowClick = (id: number) => {
+    if (selectedSurveyId === id) {
+      setSelectedSurveyId(null);
+    }
+    else {
+      setSelectedSurveyId(id);
+    }
+  };
+
+  const handleOutsideClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    const target = event.target as HTMLElement;
+
+    if (target.closest(".btn-delete") || target.closest(".btn-edit") || target.closest(".btn-view-scores") || target.closest(".btn-start-session") || target.closest(".btn-new-survey")) {
+      return;
+    }
+    if (!target.closest(".survey-row")) {
+      setSelectedSurveyId(null);
+    }
+  };
+
   return (
-    <div className="app-container">
+    <div className="app-container" onClick={handleOutsideClick}>
       <h1 className="title">LiveLearn</h1>
       <div className="survey-list">
       <div className="top-buttons">
@@ -52,24 +78,9 @@ function Poll() {
           <button className="btn-start-session">Start Session</button>
         </div>
       </div>
-        {/* {surveys.map((survey) => (
-          <div key={survey.id} className="survey-row">
-            <div className="survey-name">
-              {survey.title}
-            </div>
-            <div className="survey-questions">
-              {survey.questions} Questions
-            </div>
-            <div className="survey-actions">
-              <button onClick={() => handleDeleteClick(survey.id)} className="btn-delete"><DeleteOutlineIcon fontSize='inherit'/> Delete</button>
-              <button onClick={handleEditClick} className="btn-edit"><EditIcon fontSize='inherit'/> Edit</button>
-              <button onClick={handleScoreClick} className="btn-view-scores">View Scores</button>
-            </div>
-          </div>
-        ))} */}
-                {surveys.length > 0 ? (
+        {surveys.length > 0 ? (
           surveys.map((survey) => (
-            <div key={survey.id} className="survey-row">
+            <div key={survey.id} className={`survey-row ${selectedSurveyId === survey.id ? "selected" : ""}`} onClick={() => handleRowClick(survey.id)}>
               <div className="survey-name">{survey.title}</div>
               <div className="survey-questions">{survey.questions} Questions</div>
               <div className="survey-actions">

@@ -12,11 +12,12 @@
     overflow: hidden;
   }
 
-  .button-div {
+  .message-div {
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
     margin-top: 50vh;
     gap: 2rem;
+    color: white;
   }

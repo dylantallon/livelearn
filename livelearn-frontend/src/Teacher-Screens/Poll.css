@@ -61,21 +61,30 @@
   align-items: center;
   justify-content: space-between;
   border-radius: 5px;
-  width: calc(100% - 40px);
-  
+  width: calc(100% - 40px); 
+}
+
+.survey-row:hover {
+  border: solid 2px #000000;
+}
+
+.survey-row.selected {
+  background-color: #c4e0ff;
+  border: solid 1px #000000;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+  transform: translateY(-2px);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
 }
 
 .survey-name {
   flex: 2;
   font-size: 1.1rem;
-  margin-right: 1rem;
   text-align: left;
 }
 
 .survey-questions {
   flex: 1;
   text-align: center;
-  margin-right: 1rem;
 }
 
 .survey-actions {

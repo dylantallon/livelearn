@@ -5,11 +5,12 @@ import { useEffect, useState } from "react";
 import { getDoc, doc } from "firebase/firestore";
 import { signInWithCustomToken } from "firebase/auth";
 import { auth, db } from "./firebase";
+import CircularProgress from '@mui/material/CircularProgress';
 
 function Start() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const [message, setMessage] = useState("Loading...");
+    const [message, setMessage] = useState("loading");
 
     const login = async () => {
       try {
@@ -47,7 +48,7 @@ function Start() {
       catch (error) {
         console.error(error);
         if (error instanceof Error) {
-          setMessage(error.message);
+           setMessage(error.message);
         }
       }
     };
@@ -58,8 +59,8 @@ function Start() {
   
     return (
       <div className="app-container">
-        <div className = "button-div" >
-          <span>{message}</span>
+        <div className = "message-div" >
+          {message === "loading" ? <CircularProgress size={50}/> : <span style={{color: "white"}}> {message} </span>}
         </div>
       </div>
     );
