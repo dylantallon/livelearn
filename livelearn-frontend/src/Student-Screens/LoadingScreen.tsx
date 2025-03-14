@@ -14,7 +14,7 @@ const LoadingScreen: React.FC = () => {
   }, [navigate]);
 
   return (
-    <div className="default">
+    <div className="loading-container">
       <div className="loadingscreen-header">
         <h1>LiveLearn</h1>
       </div>      

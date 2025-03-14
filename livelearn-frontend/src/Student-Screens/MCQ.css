@@ -2,53 +2,97 @@
 html, body {
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Prevents unwanted scrollbars */
+  overflow: hidden;
+  height: 100%;
   box-sizing: border-box;
-  height: 100%; /* Ensures full height coverage */
+}
+
+/* Ensure the container takes up the entire screen */
+.mcontainer {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Full viewport height */
+  width: 100vw;
+  background-color: #2f2b2b;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Header (fixed height) */
+.MCQ-header {
+  justify-content: center;
+  top: 0;
+  left: 0;
+  width: 100vw; /* Full width of the screen */
+  height: 80px;
+  background-color: #007bff; /* Blue header */
+  color: white;
+  text-align: center;
+  padding: 0.5rem 0;
+  font-size: 1.8rem;
+  display: flex;
+  align-items: center;
+  line-height: 10rem;
+  font-weight: bold;
 }
 
 /* Main container to align question & choices */
 .main-container {
   display: flex;
-  align-items: center; /* Keep vertical alignment */
-  justify-content: flex-start; /* Moves everything to the left */
-  width: 100vw;
-  height: 100vh;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  width: 100%;
+  height: calc(100vh - 80px); /* Take full screen height minus header */
   background-color: #2f2b2b;
-  padding: 2rem 5rem; /* Adds equal left and right padding */
-  box-sizing: border-box;
-  overflow: hidden;
+  padding: 2rem 5rem;
   gap: 5rem; /* Adds spacing between question box and choices */
+  box-sizing: border-box;
+}
+
+/* Question and Choices should be centered */
+.choices-box {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  flex: 1;
+  max-width: 50%;
+}
+
+.question-box {
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  align-items: center; /* Center vertically */
+  flex: 1;
+  height: 60%;
+  max-width: 50%;
 }
 
 /* Question box styling */
 .question-box {
-  width: 40%; /* Explicit width */
-  height: 70%;
   color: black;
   background-color: white;
   border-radius: 15px;
   padding: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   font-size: 2rem;
   font-weight: bold;
   box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
-  margin-left: 0; /* Ensures it stays on the left */
-  margin-top: 5rem;
+  text-align: center;
+}
+
+/* Question text should be centered */
+.question-text {
+  margin: 0;
+  text-align: center;
+  width: 100%;
 }
 
 /* Choices container */
 .choices-box {
-  width: 50%; /* Ensures it stays within half the screen */
   display: flex;
   flex-direction: column;
-  align-items: stretch; /* Ensures choices fit inside */
-  justify-content: flex-start;
-  gap: 1.5rem; /* Reduce gap to prevent excess spacing */
-  overflow: hidden; /* Ensures no overflow */
-  margin-top: 5rem;
+  align-items: center;
+  gap: 1.5rem;
+  flex: 1;
 }
 
 /* Choice boxes */
@@ -63,32 +107,9 @@ html, body {
   box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
   cursor: pointer;
   transition: 0.3s;
-  width: 100%; /* Ensures choices stay within container */
-  max-width: 100%; /* Prevents choices from exceeding the parent */
-  box-sizing: border-box; /* Prevents padding from increasing width */
-}
-
-.MCQ-header {
-  position: fixed; /* Keeps it at the top of the screen */
-  top: 0;
-  left: 0;
-  width: 100vw; /* Full width of the screen */
-  height: 80px;
-  background-color: #007bff; /* Blue header */
-  color: white;
-  text-align: center;
-  padding: 0.5rem 0;
-  font-size: 1.8rem;
-  justify-content: center;
-  display: flex;
-  align-items: center;
-  line-height: 10rem;
-  font-weight: bold;
-}
-
-/* Ensure first choice aligns with top of question box */
-.choice:first-child {
-  margin-top: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* Hover effect for choices */

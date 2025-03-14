@@ -2,7 +2,6 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     height: 100vh;
     text-align: center;
     font-size: 3rem;
@@ -32,7 +31,7 @@
     flex-direction: column;
     align-items: center;
     gap: 1.5rem;
-    margin-top: 2rem; /* Pushes content slightly down */
+    margin-top: 17vh; /* Pushes content slightly down */
     width: 60%; /* Limits width for readability */
 }
   
@@ -53,7 +52,7 @@
 
 .feedback-header 
 {
-    position: fixed; /* Keeps it at the top of the screen */
+    justify-content: center;
     top: 0;
     left: 0;
     width: 100vw; /* Full width of the screen */
@@ -63,7 +62,6 @@
     text-align: center;
     padding: 0.5rem 0;
     font-size: 1.8rem;
-    justify-content: center;
     display: flex;
     align-items: center;
     line-height: 10rem;

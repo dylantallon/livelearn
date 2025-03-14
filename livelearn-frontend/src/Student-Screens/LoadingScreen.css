@@ -1,20 +1,22 @@
 
-.default {
-  max-width: 1280px;
-  width: 100vw; /* Ensures it takes up full available width */
-  margin: 0 auto; /* Centers the element */
-  padding: 2rem;
+
+.loading-container
+{
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: none;
+  padding: none;
+  font-family: sans-serif;;
+  height: 100vh;
+  width: 100vw;
+  box-sizing: border-box;
   background-color: #2f2b2b;
-  text-align: center; /* Ensures text inside is centered */
-  display: flex; /* Allows better centering */
-  flex-direction: column; /* Keeps content stacked */
-  align-items: center; /* Centers content horizontally */
-  justify-content: center; /* Centers content vertically (if needed) */
-  height: 100vh; /* Optional: Centers vertically */
+  overflow: hidden;
 }
 
-.loadingscreen-header {
-  position: fixed; /* Keeps it at the top of the screen */
+.loadingscreen-header 
+{
   top: 0;
   left: 0;
   width: 100vw; /* Full width of the screen */
@@ -29,6 +31,9 @@
   align-items: center;
   line-height: 10rem;
   font-weight: bold;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
 }
 
 .default2 {
@@ -46,6 +51,9 @@
   margin 0 auto;
   padding: 2rem;
   text-align: center;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
 }
 
 p.default3 {
