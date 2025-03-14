@@ -25,6 +25,7 @@
     top: 0;
     z-index: 100;
     display: flex;
+    justify-content: space-between;
     gap: 1rem;
     align-items: center;
     flex: 1;
@@ -35,16 +36,15 @@
 }
 .question-menu {
     display: flex;
-    justify-content: right;
+    justify-content: flex-end;
     align-items: center;
-    flex: 1;
 }
 .poll-title {
     display: flex;
-    justify-content: left;
+    flex-grow: 1;
+    justify-content: flex-start;
     align-content: center;
     align-items: center;
-    flex: 1;
 }
 .add-question-btn {
     background-color: #56ae5f;
@@ -53,7 +53,7 @@
     align-items: center;
     gap: 2px;
 }
-.empty-state {
+.empty-question-state {
     padding: 40px;
     background-color: #ffffff;
     border-radius: 15px;

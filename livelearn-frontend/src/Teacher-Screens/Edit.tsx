@@ -14,6 +14,8 @@ import AddIcon from "@mui/icons-material/Add"
 import CheckBoxIcon from "@mui/icons-material/CheckBox"
 import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked"
 import TextFieldsIcon from "@mui/icons-material/TextFields"
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+
 
 function Edit() {
   type QuestionType = "checkbox" | "radio" | "text"
@@ -80,9 +82,7 @@ function Edit() {
       {/* <div className = "back-div" >
                 <button className="btn-back" onClick={handleBackClick}> ⟵ Back</button>
             </div> */}
-      <button className="btn-back" onClick={handleBackClick}>
-        ⟵
-      </button>
+      <ArrowBackIcon className="btn-back" onClick={handleBackClick}></ArrowBackIcon>
       <div className="question-container">
         <div className="new-question-div">
           <div className="poll-title">
@@ -122,10 +122,10 @@ function Edit() {
                   }}
                 >
                   {name}
+                  <IconButton onClick={startEditingName} size="small" aria-label="Edit question" sx={{ ml: 0.5 }}>
+                    <EditIcon fontSize="small"/>
+                  </IconButton>
                 </Typography>
-                <IconButton onClick={startEditingName} aria-label="Edit question" sx={{ mt: 0 }}>
-                  <EditIcon />
-                </IconButton>
               </Box>
             )}
           </div>
@@ -201,7 +201,7 @@ function Edit() {
 
         {/* Show a message when there are no questions */}
         {questions.length === 0 && (
-          <div className="empty-state">
+          <div className="empty-question-state">
             <Typography variant="body1" color="text.secondary" align="center" sx={{ my: 4 }}>
               No questions added yet. Click "Add Question" to get started.
             </Typography>

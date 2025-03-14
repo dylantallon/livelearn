@@ -125,7 +125,7 @@ export default function RadioQuestion({
             </IconButton>
           </Stack>
         ) : (
-          <Box mb={1} sx={{ display: "flex", alignItems: "flex-start" }}>
+          <Box mb={1} sx={{ display: "flex", alignItems: "flex-start", flexDirection: { xs: "column", sm: "row" } }}>
             <Typography
               variant="h6"
               sx={{
@@ -136,11 +136,12 @@ export default function RadioQuestion({
               }}
             >
               {question}
-            </Typography>
-            <IconButton onClick={startEditingQuestion} size="small" aria-label="Edit question" sx={{ mt: 0 }}>
+            <IconButton onClick={startEditingQuestion} size="small" aria-label="Edit question" sx={{ ml: 0.5 }}>
               <EditIcon fontSize="small" />
             </IconButton>
-            <button onClick={addChoice} style={{ display: "flex", alignItems: "center", border: "1px solid #007bff", borderRadius: "5px", padding: "5px", marginLeft: "5px", backgroundColor: "white"}}>
+            </Typography>
+            <div style={{display: "flex", flexWrap: "wrap"}}>
+            <button onClick={addChoice} style={{ display: "flex", alignItems: "center", border: "1px solid #007bff", borderRadius: "5px", padding: "5px", backgroundColor: "white"}}>
                         <AddIcon fontSize="inherit" sx={{color: "#007bff", margin: "0"}}/>
                 <Typography variant="subtitle2" color="#007bff">
                     Add Option
@@ -152,6 +153,7 @@ export default function RadioQuestion({
                     Delete Question
                 </Typography>
             </button>
+            </div>
           </Box>
         )}
       </Box>

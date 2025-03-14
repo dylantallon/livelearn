@@ -11,11 +11,12 @@
   cursor: pointer;
   font-size: 0.9rem;
   border-radius: 4px;
-  background-color: #636363;
+  color: white;
   position: fixed;
-  top: 118px; /* Distance from the top */
-  left: 8px; /* Distance from the left */
+  top: 110px;
+  left: 4px;
 }
+
 .score-list {
   display: flex;
   flex-direction: column;

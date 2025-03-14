@@ -55,7 +55,7 @@ export default function TextQuestion({initialQuestion, onQuestionChange, onDelet
             </IconButton>
           </Stack>
         ) : (
-          <Box sx={{ display: "flex", alignItems: "flex-start" }}>
+          <Box sx={{ display: "flex", alignItems: "flex-start", flexDirection: { xs: "column", sm: "row" } }}>
             <Typography
               variant="h6"
               sx={{
@@ -66,11 +66,11 @@ export default function TextQuestion({initialQuestion, onQuestionChange, onDelet
               }}
             >
               {question}
+              <IconButton onClick={startEditingQuestion} size="small" aria-label="Edit question" sx={{ ml: 0.5 }}>
+                <EditIcon fontSize="small" />
+              </IconButton>
             </Typography>
-            <IconButton onClick={startEditingQuestion} size="small" aria-label="Edit question" sx={{ mt: 0 }}>
-              <EditIcon fontSize="small" />
-            </IconButton>
-            <button onClick={onDelete} style={{ display: "flex", alignItems: "center", borderRadius: "5px", padding: "5px", marginLeft: "5px", backgroundColor: "#c95151"}}>
+            <button onClick={onDelete} style={{ display: "flex", alignItems: "center", borderRadius: "5px", padding: "5px", backgroundColor: "#c95151"}}>
                         <DeleteOutlineIcon fontSize="inherit" sx={{color: "white", margin: "0"}}/>
                 <Typography variant="subtitle2" color="white">
                     Delete Question
