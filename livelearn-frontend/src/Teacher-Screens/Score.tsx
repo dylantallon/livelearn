@@ -1,5 +1,6 @@
 import "./Score.css";
 import { useNavigate } from 'react-router-dom';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 function Score() {
     const navigate = useNavigate();
@@ -34,9 +35,7 @@ function Score() {
     return (
       <div className="app-container">
         <h1 className="title">LiveLearn</h1>
-        <div className = "back-div" >
-            <button className="btn-back" onClick={handleBackClick}> ⟵ Back</button>
-        </div>
+        <ArrowBackIcon className="btn-back" onClick={handleBackClick}>⟵</ArrowBackIcon>
         <div className="score-list">
           {students.map((student) => (
             <div key={student.id} className="survey-row">

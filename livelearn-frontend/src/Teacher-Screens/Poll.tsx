@@ -1,56 +1,104 @@
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Typography } from '@mui/material';
+import EditIcon from "@mui/icons-material/Edit"
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline"
+import AddIcon from "@mui/icons-material/Add"
 import "./Poll.css";
 
 function Poll() {
   const navigate = useNavigate();
 
-  const surveys = [
-    { id: 1, title: "Survey 1", questions: 10 },
-    { id: 2, title: "Survey 2", questions: 10 },
-    { id: 3, title: "Survey 3", questions: 10 },
-    { id: 4, title: "Survey 4", questions: 10 },
-    { id: 5, title: "Survey 5", questions: 10 },
-    { id: 6, title: "Survey 6", questions: 10 },
-    { id: 7, title: "Survey 7", questions: 10 },
-    { id: 8, title: "Survey 8", questions: 10 },
-    { id: 9, title: "Survey 9", questions: 10 },
-    { id: 10, title: "Survey 10", questions: 10 },
-    { id: 11, title: "Survey 11", questions: 10 },
-    { id: 12, title: "Survey 12", questions: 10 }
-  ];
+  const [selectedSurveyId, setSelectedSurveyId] = useState<number | null>(null);
+
+  const [surveys, setSurveys] = useState([
+    { id: 1, title: "Poll 1", questions: 10 },
+    { id: 2, title: "Poll 2", questions: 10 },
+    { id: 3, title: "Poll 3", questions: 10 },
+    { id: 4, title: "Poll 4", questions: 10 },
+    { id: 5, title: "Poll 5", questions: 10 },
+  ]);
 
   const handleScoreClick = () => {
     navigate('/scores');
   };
 
+  const handleEditClick = () => {
+    navigate('/edit');
+  };
+
+  const handleDeleteClick = (id: number) => {
+    setSurveys((prevSurveys) => {
+      const updatedSurveys = prevSurveys.filter((survey) => survey.id !== id);
+      setSelectedSurveyId((prevSelectedId) => (prevSelectedId === id ? null : prevSelectedId));
+      return updatedSurveys;
+    });
+  }
+
+  const handleAddPoll = () => {
+    const newId = surveys.length > 0 ? Math.max(...surveys.map((s) => s.id)) + 1 : 1
+    const newPoll = {
+      id: newId,
+      title: `Poll ${newId}`,
+      questions: 10,
+    }
+    setSurveys([...surveys, newPoll])
+  }
+
+  const handleRowClick = (id: number) => {
+    if (selectedSurveyId === id) {
+      setSelectedSurveyId(null);
+    }
+    else {
+      setSelectedSurveyId(id);
+    }
+  };
+
+  const handleOutsideClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    const target = event.target as HTMLElement;
+
+    if (target.closest(".btn-delete") || target.closest(".btn-edit") || target.closest(".btn-view-scores") || target.closest(".btn-start-session") || target.closest(".btn-new-survey")) {
+      return;
+    }
+    if (!target.closest(".survey-row")) {
+      setSelectedSurveyId(null);
+    }
+  };
+
   return (
-    <div className="app-container">
+    <div className="app-container" onClick={handleOutsideClick}>
       <h1 className="title">LiveLearn</h1>
-      <p className="subtitle">
-        Click on a poll and press start session to begin a session
-      </p>
-
       <div className="survey-list">
-        {surveys.map((survey) => (
-          <div key={survey.id} className="survey-row">
-            <div className="survey-name">
-              {survey.title}
-            </div>
-            <div className="survey-questions">
-              {survey.questions} Questions
-            </div>
-            <div className="survey-actions">
-              <button className="btn-delete">Delete</button>
-              <button className="btn-edit">Edit Poll</button>
-              <button onClick={handleScoreClick} className="btn-view-scores">View Scores</button>
-            </div>
-          </div>
-        ))}
+      <div className="top-buttons">
+        <div className="subtitle">
+        Click on a poll and press start session to begin a session
+        </div>
+        <div className="survey-buttons">
+          <button onClick={handleAddPoll} className="btn-new-survey"><AddIcon fontSize='inherit'/> New Poll</button>
+          <button className="btn-start-session">Start Session</button>
+        </div>
       </div>
-
-      <div className="bottom-buttons">
-        <button className="btn-new-survey">+ New Survey</button>
-        <button className="btn-start-session">Start Session</button>
+        {surveys.length > 0 ? (
+          surveys.map((survey) => (
+            <div key={survey.id} className={`survey-row ${selectedSurveyId === survey.id ? "selected" : ""}`} onClick={() => handleRowClick(survey.id)}>
+              <div className="survey-name">{survey.title}</div>
+              <div className="survey-questions">{survey.questions} Questions</div>
+              <div className="survey-actions">
+                <button onClick={() => handleDeleteClick(survey.id)} className="btn-delete"><DeleteOutlineIcon fontSize='inherit'/> Delete</button>
+                <button onClick={handleEditClick} className="btn-edit"><EditIcon fontSize='inherit'/> Edit</button>
+                <button onClick={handleScoreClick} className="btn-view-scores">View Scores</button>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div
+            className="empty-poll-state"
+          >
+            <Typography variant="body1" color="text.secondary" sx={{ my: 4 }}>
+              No polls available. Click "New Poll" to create your first poll.
+            </Typography>
+          </div>
+        )}
       </div>
     </div>
   );
