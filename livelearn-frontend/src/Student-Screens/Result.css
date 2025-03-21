@@ -9,24 +9,6 @@
     font-weight: bold;
 }
 
-/* Header styling */
-.Result-header {
-    top: 0;
-    left: 0;
-    width: 100vw; /* Full width of the screen */
-    height: 80px;
-    background-color: #007bff; /* Blue header */
-    color: white;
-    text-align: center;
-    padding: 0.5rem 0;
-    font-size: 1.8rem;
-    justify-content: center;
-    display: flex;
-    align-items: center;
-    line-height: 10rem;
-    font-weight: bold;
-}
-
 /* Container for "You answered" text and answer box */
 .answer-section {
     display: flex;

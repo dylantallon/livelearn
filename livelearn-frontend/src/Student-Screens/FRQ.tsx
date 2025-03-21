@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./FRQ.css";
+import Header from "../Components/Header";
 
 interface FRQProps {
   question: { question: string; acceptedAnswers: string[] };
@@ -11,9 +12,7 @@ const FRQ: React.FC<FRQProps> = ({ question, onSubmit }) => {
 
   return (
     <div className="frq-container">
-      <div className="FRQ-header">
-        <h1>LiveLearn</h1>
-      </div>
+      <Header/>
       <div className="frq-content">
         <div className="frq-question-box">
           <p className="question-text">{question.question}</p>

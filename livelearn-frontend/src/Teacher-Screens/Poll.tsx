@@ -5,6 +5,7 @@ import EditIcon from "@mui/icons-material/Edit"
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline"
 import AddIcon from "@mui/icons-material/Add"
 import "./Poll.css";
+import Header from '../Components/Header';
 
 function Poll() {
   const navigate = useNavigate();
@@ -67,7 +68,7 @@ function Poll() {
 
   return (
     <div className="app-container" onClick={handleOutsideClick}>
-      <h1 className="title">LiveLearn</h1>
+      <Header/>
       <div className="survey-list">
       <div className="top-buttons">
         <div className="subtitle">

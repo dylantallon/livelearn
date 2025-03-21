@@ -1,13 +1,3 @@
-.title {
-  font-size: 3rem;
-  padding: 20px;
-  color: #ffffff;
-  background-color: #007bff;
-  text-align: left;
-  margin-bottom: 30px;
-  line-height: 1;
-}
-
 .top-buttons {
   position: sticky;
   padding-left: 5px;
@@ -143,6 +133,7 @@ button {
   background-color: #007bff;
   color: #fff;
 }
+
 .empty-poll-state {
   width: calc(100% - 40px);
   background-color: #ffffff;

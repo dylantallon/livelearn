@@ -15,6 +15,7 @@ import CheckBoxIcon from "@mui/icons-material/CheckBox"
 import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked"
 import TextFieldsIcon from "@mui/icons-material/TextFields"
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import Header from "../Components/Header"
 
 
 function Edit() {
@@ -78,11 +79,11 @@ function Edit() {
 
   return (
     <div className="app-container">
-      <h1 className="title">LiveLearn</h1>
+      <Header/>
       {/* <div className = "back-div" >
                 <button className="btn-back" onClick={handleBackClick}> ⟵ Back</button>
             </div> */}
-      <ArrowBackIcon className="btn-back" onClick={handleBackClick}></ArrowBackIcon>
+      <ArrowBackIcon className="btn-back" onClick={handleBackClick}/>
       <div className="question-container">
         <div className="new-question-div">
           <div className="poll-title">
