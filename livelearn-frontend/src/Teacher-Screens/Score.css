@@ -6,11 +6,8 @@
 }
 
 .btn-back {
-  padding: 0.5rem 0.5rem;
-  border: none;
   cursor: pointer;
-  font-size: 2.5rem!important;
-  border-radius: 4px;
+  font-size: 2rem!important;
   color: white;
   position: fixed;
   top: 110px;

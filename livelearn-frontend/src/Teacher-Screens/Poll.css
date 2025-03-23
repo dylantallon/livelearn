@@ -51,7 +51,8 @@
   align-items: center;
   justify-content: space-between;
   border-radius: 5px;
-  width: calc(100% - 40px); 
+  border: solid 2px transparent;
+  width: calc(100% - 40px);
 }
 
 .survey-row:hover {

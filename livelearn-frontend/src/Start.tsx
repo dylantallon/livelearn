@@ -19,6 +19,7 @@ function Start() {
         if (token) {
           const credential = await signInWithCustomToken(auth, token);
           user = credential.user;
+          localStorage.setItem("token", token);
         }
         else if (auth.currentUser) {
           user = auth.currentUser;
