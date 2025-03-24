@@ -1,55 +1,30 @@
 import "./Start.css";
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useEffect, useState } from "react";
-
-import { getDoc, doc } from "firebase/firestore";
+import { Navigate, useSearchParams } from 'react-router-dom';
+import { useEffect, useState, useContext } from "react";
 import { signInWithCustomToken } from "firebase/auth";
-import { auth, db } from "./firebase";
 import CircularProgress from '@mui/material/CircularProgress';
 
-function Start() {
-    const navigate = useNavigate();
-    const [searchParams] = useSearchParams();
-    const [message, setMessage] = useState("loading");
+import { auth } from "./firebase";
+import { AuthContext } from "./Components/AuthContext";
 
+function Start() {
+    const [searchParams] = useSearchParams();
+    const [loginError, setLoginError] = useState<string | null>(null);
+    const {role, error} = useContext(AuthContext);
+
+    // Check if token is in URL to log in user
     const login = async () => {
       try {
-        let user = null;
         const token = searchParams.get("token");
         if (token) {
-          const credential = await signInWithCustomToken(auth, token);
-          user = credential.user;
           localStorage.setItem("token", token);
-        }
-        else if (auth.currentUser) {
-          user = auth.currentUser;
-        }
-        if (!user) {
-          throw new Error("User is null");
-        }
-
-        const tokenResult = await user.getIdTokenResult();
-        const courseId = tokenResult.claims.courseId;
-        if (typeof courseId !== "string") {
-          throw new Error("Course ID is null");
-        }
-        const course = await getDoc(doc(db, "courses", courseId));
-        if (course.exists()) {
-          if (course.data().instructors?.includes(user.uid)) {
-            navigate('/poll');
-          }
-          else {
-            navigate('/loading');
-          }
-        }
-        else {
-          throw new Error("Course does not exist");
+          await signInWithCustomToken(auth, token);
         }
       }
       catch (error) {
         console.error(error);
         if (error instanceof Error) {
-           setMessage(error.message);
+          setLoginError(error.message);
         }
       }
     };
@@ -57,11 +32,22 @@ function Start() {
     useEffect(() => {
       login();
     }, []);
+
+    // Redirect user as soon as login is finished
+    if (role === "Instructor") {
+      return <Navigate to="/poll" replace/>
+    }
+    if (role === "Learner") {
+      return <Navigate to="/loading" replace/>
+    }
+
+    // Display any errors
+    const message = searchParams.get("token") ? loginError : error;
   
     return (
       <div className="app-container">
         <div className = "message-div" >
-          {message === "loading" ? <CircularProgress size={50}/> : <span style={{color: "white"}}> {message} </span>}
+          {message ? <span style={{color: "white"}}>{message}</span> : <CircularProgress size={50}/>}
         </div>
       </div>
     );

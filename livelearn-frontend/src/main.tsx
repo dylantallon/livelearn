@@ -1,6 +1,8 @@
 import { createRoot } from "react-dom/client";
 import { BrowserRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import { useState } from "react";
+
+import { AuthProvider } from "./Components/AuthContext.tsx";
 import MCQ from "./Student-Screens/MCQ.tsx";
 import FRQ from "./Student-Screens/FRQ.tsx";
 import Result from "./Student-Screens/Result.tsx";
@@ -53,34 +55,36 @@ const App = () => {
   };
 
   return (
-    <Routes>
-      <Route path="/" element={<Start />} />
-      <Route path="/poll" element={<Poll />} />
-      <Route path="/scores" element={<Score />} />
-      <Route path="/edit" element={<Edit />} />
-      <Route path="/loading" element={<LoadingScreen />} />
-      <Route
-        path="/MCQ"
-        element={
-          <MCQ
-            question={questions[questionIndex] as { type: "MCQ"; question: string; options: string[]; answer: string }}
-            onAnswer={handleAnswer}
-          />
-        }
-      />
-      <Route
-        path="/FRQ"
-        element={
-          <FRQ
-            question={questions[questionIndex] as { type: "FRQ"; question: string; acceptedAnswers: string[] }}
-            onSubmit={handleAnswer}
-          />
-        }
-      />
-      <Route path="/Result" element={<Result onShowAnswer={handleShowAnswer} />} />
-      <Route path="/FeedBack" element={<Feedback question={questions[questionIndex]} onNext={handleNextQuestion} />} />
-      <Route path="/finished" element={<FinalScreen />} />
-    </Routes>
+    <AuthProvider>
+      <Routes>
+        <Route path="/" element={<Start />} />
+        <Route path="/poll" element={<Poll />} />
+        <Route path="/scores" element={<Score />} />
+        <Route path="/edit" element={<Edit />} />
+        <Route path="/loading" element={<LoadingScreen />} />
+        <Route
+          path="/MCQ"
+          element={
+            <MCQ
+              question={questions[questionIndex] as { type: "MCQ"; question: string; options: string[]; answer: string }}
+              onAnswer={handleAnswer}
+            />
+          }
+        />
+        <Route
+          path="/FRQ"
+          element={
+            <FRQ
+              question={questions[questionIndex] as { type: "FRQ"; question: string; acceptedAnswers: string[] }}
+              onSubmit={handleAnswer}
+            />
+          }
+        />
+        <Route path="/Result" element={<Result onShowAnswer={handleShowAnswer} />} />
+        <Route path="/FeedBack" element={<Feedback question={questions[questionIndex]} onNext={handleNextQuestion} />} />
+        <Route path="/finished" element={<FinalScreen />} />
+      </Routes>
+    </AuthProvider>
   );
 };
 
