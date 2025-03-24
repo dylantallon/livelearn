@@ -96,7 +96,10 @@ class LtiController {
       }
 
       // Return auth token to log in user
-      const loginId = await getAuth().createCustomToken(userId, {courseId: courseId});
+      const loginId = await getAuth().createCustomToken(userId, {
+        courseId: courseId,
+        role: role,
+      });
       return requestHandler.sendRedirect(res, `https://${livelearnDomain}?token=${loginId}`);
     }
     catch (error) {
@@ -148,7 +151,10 @@ class LtiController {
       await paramsRef.delete();
 
       // Return auth token to log in user
-      const loginId = await getAuth().createCustomToken(userId, {courseId: courseId});
+      const loginId = await getAuth().createCustomToken(userId, {
+        courseId: courseId,
+        role: "Instructor",
+      });
       return requestHandler.sendRedirect(res, `https://${livelearnDomain}?token=${loginId}`);
     }
     catch (error) {

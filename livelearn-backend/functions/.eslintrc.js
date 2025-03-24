@@ -34,5 +34,6 @@ module.exports = {
     "camelcase": ["off"],
     "brace-style": ["off"],
     "linebreak-style": ["error", "windows"],
+    "@typescript-eslint/no-explicit-any": ["warn"],
   },
 };
