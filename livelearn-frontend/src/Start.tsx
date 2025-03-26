@@ -9,6 +9,7 @@ import { AuthContext } from "./Components/AuthContext";
 
 function Start() {
     const [searchParams] = useSearchParams();
+    const [loading, setLoading] = useState(true);
     const [loginError, setLoginError] = useState<string | null>(null);
     const {role, error} = useContext(AuthContext);
 
@@ -27,6 +28,7 @@ function Start() {
           setLoginError(error.message);
         }
       }
+      setLoading(false);
     };
 
     useEffect(() => {
@@ -34,11 +36,13 @@ function Start() {
     }, []);
 
     // Redirect user as soon as login is finished
-    if (role === "Instructor") {
-      return <Navigate to="/poll" replace/>
-    }
-    if (role === "Learner") {
-      return <Navigate to="/loading" replace/>
+    if (!loading) {
+      if (role === "Instructor") {
+        return <Navigate to="/poll" replace/>
+      }
+      if (role === "Learner") {
+        return <Navigate to="/loading" replace/>
+      }
     }
 
     // Display any errors
