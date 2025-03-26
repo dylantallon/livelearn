@@ -1,0 +1,16 @@
+.title {
+  padding: 20px;
+  color: #ffffff;
+  background-color: #007bff;
+  margin-bottom: 30px;
+  line-height: 1;
+  width: 100vw;
+  display: flex;
+  justify-content: space-between;
+  font-size: 1rem;
+}
+
+.btn-popout {
+  cursor: pointer;
+  font-size: 2rem!important;
+}

@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./LoadingScreen.css"
+import Header from "../Components/Header";
 
 const LoadingScreen: React.FC = () => {
   const navigate = useNavigate();
@@ -15,9 +16,7 @@ const LoadingScreen: React.FC = () => {
 
   return (
     <div className="loading-container">
-      <div className="loadingscreen-header">
-        <h1>LiveLearn</h1>
-      </div>      
+      <Header/>
       <div className="default2">
         {/* Enlarged Hourglass SVG */}
         <svg width="600" height="400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

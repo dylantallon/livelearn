@@ -1,5 +1,6 @@
 import React from "react";
 import "./Feedback.css";
+import Header from "../Components/Header";
 
 interface FeedbackProps {
   question: { type: "MCQ" | "FRQ"; question: string; answer?: string; acceptedAnswers?: string[] };
@@ -9,9 +10,7 @@ interface FeedbackProps {
 const Feedback: React.FC<FeedbackProps> = ({ question, onNext }) => {
   return (
     <div className="feedback-container">
-      <div className="feedback-header">
-        <h1>LiveLearn</h1>
-      </div>
+      <Header/>
       <div className="feedback-section">
         <h1 className="answer">The correct answer was:</h1>
         <div className="feedback-box">

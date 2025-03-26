@@ -3,6 +3,7 @@
   border-radius: 15px;
   background-color: white;
 }
+
 .question-container {
     display: flex;
     flex-direction: column;
@@ -18,6 +19,7 @@
     padding-top: 0;
     position: relative;
 }
+
 .new-question-div {
     position: sticky;
     padding-left: 0;
@@ -34,11 +36,13 @@
     padding-top: 10px;
     padding-bottom: 10px;
 }
+
 .question-menu {
     display: flex;
     justify-content: flex-end;
     align-items: center;
 }
+
 .poll-title {
     display: flex;
     flex-grow: 1;
@@ -46,6 +50,7 @@
     align-content: center;
     align-items: center;
 }
+
 .add-question-btn {
     background-color: #56ae5f;
     border: none;
@@ -53,10 +58,11 @@
     align-items: center;
     gap: 2px;
 }
+
 .empty-question-state {
     padding: 40px;
     background-color: #ffffff;
     border-radius: 15px;
     border: 1px dashed #000000;
     text-align: center;
-  }
+}

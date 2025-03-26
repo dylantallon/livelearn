@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import "./Result.css";
+import Header from "../Components/Header";
 
 interface ResultProps {
   onShowAnswer: () => void;
@@ -15,9 +16,7 @@ const Result: React.FC<ResultProps> = ({ onShowAnswer }) => {
 
   return (
     <div className="result-container">
-      <div className="Result-header">
-        <h1>LiveLearn</h1>
-      </div>
+      <Header/>
       <div className="answer-section">
         <h1 className="answer-text">You answered:</h1>
         <div className="answer-box">{userAnswer}</div>

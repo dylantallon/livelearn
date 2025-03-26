@@ -4,7 +4,6 @@ html, body {
   padding: 0;
   overflow: hidden;
   height: 100%;
-  box-sizing: border-box;
 }
 
 /* Ensure the container takes up the entire screen */
@@ -14,26 +13,7 @@ html, body {
   height: 100vh; /* Full viewport height */
   width: 100vw;
   background-color: #2f2b2b;
-  box-sizing: border-box;
   overflow: hidden;
-}
-
-/* Header (fixed height) */
-.MCQ-header {
-  justify-content: center;
-  top: 0;
-  left: 0;
-  width: 100vw; /* Full width of the screen */
-  height: 80px;
-  background-color: #007bff; /* Blue header */
-  color: white;
-  text-align: center;
-  padding: 0.5rem 0;
-  font-size: 1.8rem;
-  display: flex;
-  align-items: center;
-  line-height: 10rem;
-  font-weight: bold;
 }
 
 /* Main container to align question & choices */
@@ -46,7 +26,6 @@ html, body {
   background-color: #2f2b2b;
   padding: 2rem 5rem;
   gap: 5rem; /* Adds spacing between question box and choices */
-  box-sizing: border-box;
 }
 
 /* Question and Choices should be centered */
@@ -109,7 +88,6 @@ html, body {
   transition: 0.3s;
   width: 100%;
   max-width: 100%;
-  box-sizing: border-box;
 }
 
 /* Hover effect for choices */

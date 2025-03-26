@@ -35,3 +35,7 @@ button:hover {
   filter: brightness(1.2)
 }
 
+* {
+  box-sizing: border-box;
+}
+
