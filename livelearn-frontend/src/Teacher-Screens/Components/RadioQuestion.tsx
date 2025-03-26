@@ -75,7 +75,7 @@ export default function RadioQuestion({
 
   // Add a new choice
   const addChoice = () => {
-    const newChoices = [...choices, `Option ${choices.length + 1}`]
+    const newChoices = [...choices, `New Choice`]
     setChoices(newChoices)
     onChoicesChange(newChoices)
   }
