@@ -15,28 +15,42 @@ import FinalScreen from "./Student-Screens/FinalScreen.tsx";
 import Edit from "./Teacher-Screens/Edit.tsx";
 import "./index.css";
 
+
 const App = () => {
   const [questionIndex, setQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<string[]>([]);
   const navigate = useNavigate();
 
   type Question =
-    | { type: "MCQ"; question: string; options: string[]; answer: string }
+    | { type: "MCQ"; question: string; options: string[]; answer: string; image?: string;}
     | { type: "FRQ"; question: string; acceptedAnswers: string[] };
 
   const questions: Question[] = [
-    { type: "MCQ", question: "What is 2 + 2?", options: ["3", "4", "5", "6"], answer: "4" },
+    { type: "MCQ", question: "What is 2 + 2?", options: ["3", "4", "5", "6"], answer: "4", image: "/public/unnamed.png"},
     { type: "MCQ", question: "What is 3 + 5?", options: ["7", "8", "9", "10"], answer: "8" },
-    { type: "FRQ", question: "Is the sky blue?", acceptedAnswers: ["Yes", "yes"] },
+    { type: "FRQ", question: "Is the sky blue?", acceptedAnswers: ["Yes", "yes", "ye"] },
   ];
+  const [score, setScore] = useState(0); 
+  const totalQuestions = questions.length; 
 
   const handleAnswer = (answer: string) => {
     const currentQuestion = questions[questionIndex];
-    const correctAnswer = currentQuestion.type === "MCQ"
-      ? currentQuestion.answer
-      : currentQuestion.acceptedAnswers.join(" or ");
+    let correctAnswer = "";
+
+    if (currentQuestion.type === "MCQ") {
+      correctAnswer = currentQuestion.answer;
+      if (answer === correctAnswer) {
+        setScore(prev => prev + 1); 
+      }
+    } else if (currentQuestion.type === "FRQ") {
+      correctAnswer = currentQuestion.acceptedAnswers.join(" or ");
+      if (currentQuestion.acceptedAnswers.includes(answer)) {
+        setScore(prev => prev + 1); 
+      }
+    }
 
     setUserAnswers([...userAnswers, answer]);
+
     navigate(`/Result?answer=${answer}&correctAnswer=${encodeURIComponent(correctAnswer)}&questionIndex=${questionIndex}`);
   };
 
@@ -80,9 +94,9 @@ const App = () => {
             />
           }
         />
-        <Route path="/Result" element={<Result onShowAnswer={handleShowAnswer} />} />
+        <Route path="/Result" element={<Result onShowAnswer={handleShowAnswer} onNext={handleNextQuestion} />} />
         <Route path="/FeedBack" element={<Feedback question={questions[questionIndex]} onNext={handleNextQuestion} />} />
-        <Route path="/finished" element={<FinalScreen />} />
+        <Route path="/finished" element={<FinalScreen score={score} total={totalQuestions} />} />
       </Routes>
     </AuthProvider>
   );
