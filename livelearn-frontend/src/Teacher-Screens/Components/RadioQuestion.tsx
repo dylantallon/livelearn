@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import {
   Box,
   Typography,
@@ -14,6 +14,7 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete"
 import AddIcon from "@mui/icons-material/Add"
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline"
+import ImageIcon from "@mui/icons-material/Image"
 import { ConfirmationDialog } from "./Confirmation"
 
 interface RadioQuestionProps {
@@ -23,6 +24,8 @@ interface RadioQuestionProps {
   onQuestionChange: (newQuestion: string) => void
   onChoicesChange: (newChoices: string[]) => void
   onDelete: () => void
+  initialImages: string[]
+  onImagesChange?: (images: string[]) => void
 }
 
 export default function RadioQuestion({
@@ -31,13 +34,17 @@ export default function RadioQuestion({
   onQuestionChange,
   onChoicesChange,
   onDelete,
+  initialImages,
+  onImagesChange,
 }: RadioQuestionProps) {
   const [question, setQuestion] = useState(initialQuestion)
   const [choices, setChoices] = useState(initialChoices)
-  const [selectedChoice, setSelectedChoice] = useState<string>("")
+  const [selectedChoice, setSelectedChoice] = useState("")
   const [editingQuestion, setEditingQuestion] = useState(false)
   const [editingChoiceIndex, setEditingChoiceIndex] = useState<number | null>(null)
   const [editingChoiceValue, setEditingChoiceValue] = useState("")
+  const [images, setImages] = useState(initialImages)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   const saveQuestion = () => {
     setEditingQuestion(false)
@@ -74,6 +81,44 @@ export default function RadioQuestion({
     }
   }
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files) return
+
+    const readers: Promise<string>[] = []
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i]
+      const reader = new FileReader()
+      readers.push(
+        new Promise((resolve) => {
+          reader.onloadend = () => {
+            if (typeof reader.result === "string") resolve(reader.result)
+          }
+          reader.readAsDataURL(file)
+        })
+      )
+    }
+
+    Promise.all(readers).then((results) => {
+      setImages((prev) => {
+        const updated = [...prev, ...results]
+        onImagesChange?.(updated)
+        return updated
+      })
+    })
+
+    e.target.value = ""
+  }
+
+  const deleteImage = (index: number) => {
+    setImages((prev) => {
+      const updated = prev.filter((_, i) => i !== index)
+      onImagesChange?.(updated)
+      return updated
+    })
+  }
+
   return (
     <div className="question-div">
       <Box>
@@ -102,23 +147,101 @@ export default function RadioQuestion({
                 {question}
               </Typography>
               <div style={{ display: "flex", flexWrap: "wrap" }}>
-                <button onClick={addChoice} style={{ display: "flex", alignItems: "center", border: "1px solid #007bff", borderRadius: "5px", padding: "5px", backgroundColor: "white" }}>
+                <button
+                  onClick={addChoice}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    border: "1px solid #007bff",
+                    borderRadius: "5px",
+                    padding: "5px",
+                    backgroundColor: "white",
+                  }}
+                >
                   <AddIcon fontSize="inherit" sx={{ color: "#007bff", margin: "0" }} />
                   <Typography variant="subtitle2" color="#007bff">Add Option</Typography>
                 </button>
+
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    border: "1px solid #007bff",
+                    borderRadius: "5px",
+                    padding: "5px",
+                    marginLeft: "5px",
+                    backgroundColor: "white",
+                  }}
+                >
+                  <ImageIcon fontSize="inherit" sx={{ color: "#007bff", margin: "0" }} />
+                  <Typography variant="subtitle2" color="#007bff">Add Image</Typography>
+                </button>
+
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  ref={fileInputRef}
+                  style={{ display: "none" }}
+                  onChange={handleImageUpload}
+                />
 
                 <ConfirmationDialog
                   onConfirm={onDelete}
                   title="Delete Question"
                   description="Are you sure you want to delete this question? This action cannot be undone."
                   trigger={
-                    <button style={{ display: "flex", alignItems: "center", borderRadius: "5px", padding: "5px", marginLeft: "5px", backgroundColor: "#c95151" }}>
+                    <button
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        borderRadius: "5px",
+                        padding: "5px",
+                        marginLeft: "5px",
+                        backgroundColor: "#c95151",
+                      }}
+                    >
                       <DeleteOutlineIcon fontSize="inherit" sx={{ color: "white", margin: "0" }} />
                       <Typography variant="subtitle2" color="white">Delete Question</Typography>
                     </button>
                   }
                 />
               </div>
+            </Box>
+          )}
+
+          {images.length > 0 && (
+            <Box mt={2} sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+              {images.map((src, index) => (
+                <Box key={index} sx={{ position: "relative", display: "inline-block" }}>
+                  <img
+                    src={src}
+                    alt={`Uploaded ${index}`}
+                    style={{ width: "200px", height: "auto", borderRadius: 4 }}
+                  />
+                  <ConfirmationDialog
+                    onConfirm={() => deleteImage(index)}
+                    title="Delete Image"
+                    description="Are you sure you want to delete this image? This action cannot be undone."
+                    trigger={
+                      <IconButton
+                        size="small"
+                        sx={{
+                          color: "#c95151",
+                          position: "absolute",
+                          top: 4,
+                          right: 4,
+                          backgroundColor: "white",
+                          "&:hover": { backgroundColor: "#f0f0f0" },
+                        }}
+                      >
+                        <DeleteIcon fontSize="small" />
+                    </IconButton>
+                    }
+                  />
+                </Box>
+              ))}
             </Box>
           )}
         </Box>

@@ -62,7 +62,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
           <Button onClick={handleClose} color="primary">
             Cancel
           </Button>
-          <Button onClick={handleConfirm} color="error" autoFocus>
+          <Button onClick={handleConfirm} sx={{color:"#c95151"}} autoFocus>
             Delete
           </Button>
         </DialogActions>

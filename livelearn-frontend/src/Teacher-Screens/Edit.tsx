@@ -32,6 +32,7 @@ function Edit() {
     type: QuestionType
     title: string
     choices?: string[]
+    images?: string[]
   }
 
   const location = useLocation()
@@ -81,6 +82,7 @@ function Edit() {
       type,
       title: `New ${type.charAt(0).toUpperCase() + type.slice(1)} Question`,
       choices: type === "text" ? [] : ["Choice 1", "Choice 2", "Choice 3"],
+      images: [],
     };
   
     const updatedQuestions = [...questions, newQuestion];
@@ -121,11 +123,12 @@ function Edit() {
       if (!pollId) return;
       const pollRef = doc(db, "polls", pollId);
   
-      const cleaned = updated.map(({ id, title, type, choices }) => ({
+      const cleaned = updated.map(({ id, title, type, choices, images }) => ({
         id,
         title,
         type,
         choices: choices || [],
+        images: images || [],
       }));
   
       await updateDoc(pollRef, { questions: cleaned });
@@ -144,16 +147,41 @@ function Edit() {
       if (!pollId) return;
       const pollRef = doc(db, "polls", pollId);
   
-      const cleaned = updated.map(({ id, title, type, choices }) => ({
+      const cleaned = updated.map(({ id, title, type, choices, images }) => ({
         id,
         title,
         type,
         choices: choices || [],
+        images: images || [],
       }));
   
       await updateDoc(pollRef, { questions: cleaned });
     } catch (error) {
       console.error("Failed to update choices in Firestore:", error);
+    }
+  };
+
+  const updateQuestionImages = async (id: string, newImages: string[]) => {
+    const updated = questions.map((q) =>
+      q.id === id ? { ...q, images: newImages } : q
+    );
+    setQuestions(updated);
+
+    try {
+      if (!pollId) return;
+      const pollRef = doc(db, "polls", pollId);
+
+      const cleaned = updated.map(({ id, title, type, choices, images }) => ({
+        id,
+        title,
+        type,
+        choices: choices || [],
+        images: images || [],
+      }));
+
+      await updateDoc(pollRef, { questions: cleaned });
+    } catch (error) {
+      console.error("Failed to update images in Firestore:", error);
     }
   };
 
@@ -165,11 +193,12 @@ function Edit() {
       if (!pollId) return;
       const pollRef = doc(db, "polls", pollId);
   
-      const cleaned = updatedQuestions.map(({ id, title, type, choices }) => ({
+      const cleaned = updatedQuestions.map(({ id, title, type, choices, images }) => ({
         id,
         title,
         type,
-        choices: choices || []
+        choices: choices || [],
+        images: images || [],
       }));
   
       await updateDoc(pollRef, { questions: cleaned });
@@ -238,14 +267,8 @@ function Edit() {
               anchorEl={anchorEl}
               open={open}
               onClose={handleClose}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "right",
-              }}
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
+              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+              transformOrigin={{ vertical: "top", horizontal: "right" }}
             >
               <MenuItem onClick={() => addQuestion("checkbox")} sx={{ gap: 1 }}>
                 <CheckBoxIcon fontSize="small" />
@@ -264,38 +287,35 @@ function Edit() {
         </div>
 
         {questions.map((question) => {
+          const commonProps = {
+            id: question.id,
+            initialQuestion: question.title,
+            initialImages: question.images || [],
+            onQuestionChange: (newTitle: string) => updateQuestionTitle(question.id, newTitle),
+            onImagesChange: (newImages: string[]) => updateQuestionImages(question.id, newImages),
+            onDelete: () => deleteQuestion(question.id),
+          }
+
           if (question.type === "radio") {
             return (
               <RadioQuestion
-                id={question.id}
-                initialQuestion={question.title}
+                {...commonProps}
                 initialChoices={question.choices || []}
-                onQuestionChange={(newTitle) => updateQuestionTitle(question.id, newTitle)}
                 onChoicesChange={(newChoices) => updateQuestionChoices(question.id, newChoices)}
-                onDelete={() => deleteQuestion(question.id)}
               />
             )
           } else if (question.type === "checkbox") {
             return (
               <CheckboxQuestion
-                id={question.id}
-                initialQuestion={question.title}
+                {...commonProps}
                 initialChoices={question.choices || []}
-                onQuestionChange={(newTitle) => updateQuestionTitle(question.id, newTitle)}
                 onChoicesChange={(newChoices) => updateQuestionChoices(question.id, newChoices)}
-                onDelete={() => deleteQuestion(question.id)}
               />
             )
           } else if (question.type === "text") {
-            return (
-              <TextQuestion
-                id={question.id}
-                initialQuestion={question.title}
-                onQuestionChange={(newTitle) => updateQuestionTitle(question.id, newTitle)}
-                onDelete={() => deleteQuestion(question.id)}
-              />
-            )
+            return <TextQuestion {...commonProps} />
           }
+
           return null
         })}
 
@@ -312,4 +332,3 @@ function Edit() {
 }
 
 export default Edit
-
