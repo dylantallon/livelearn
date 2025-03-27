@@ -1,10 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import {Box, Typography, TextField, IconButton, Stack} from "@mui/material"
-import EditIcon from "@mui/icons-material/Edit"
-import CheckIcon from "@mui/icons-material/Check"
+import { Box, Typography, TextField } from "@mui/material"
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline"
+import { ConfirmationDialog } from "./Confirmation"
 
 interface TextQuestionProps {
   id: string
@@ -13,15 +12,14 @@ interface TextQuestionProps {
   onDelete: () => void
 }
 
-export default function TextQuestion({initialQuestion, onQuestionChange, onDelete }: TextQuestionProps) {
+export default function TextQuestion({
+  initialQuestion,
+  onQuestionChange,
+  onDelete
+}: TextQuestionProps) {
   const [question, setQuestion] = useState(initialQuestion)
   const [answer, setAnswer] = useState("")
   const [editingQuestion, setEditingQuestion] = useState(false)
-
-  // Handle question editing
-  const startEditingQuestion = () => {
-    setEditingQuestion(true)
-  }
 
   const saveQuestion = () => {
     setEditingQuestion(false)
@@ -30,15 +28,15 @@ export default function TextQuestion({initialQuestion, onQuestionChange, onDelet
 
   return (
     <div className="question-div">
-    <Box>
-      <Box mb={3}>
-        {editingQuestion ? (
-          <Stack direction="row" spacing={1} alignItems="flex-start">
+      <Box>
+        <Box mb={3}>
+          {editingQuestion ? (
             <TextField
               fullWidth
               variant="outlined"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
+              onBlur={saveQuestion}
               autoFocus
               size="small"
               multiline
@@ -50,48 +48,50 @@ export default function TextQuestion({initialQuestion, onQuestionChange, onDelet
                 },
               }}
             />
-            <IconButton onClick={saveQuestion} color="primary" aria-label="Save question" size="small" sx={{ mt: 0.5 }}>
-              <CheckIcon />
-            </IconButton>
-          </Stack>
-        ) : (
-          <Box sx={{ display: "flex", alignItems: "flex-start", flexDirection: { xs: "column", sm: "row" } }}>
-            <Typography
-              variant="h6"
-              sx={{
-                flex: 1,
-                wordBreak: "break-word",
-                lineHeight: 1.5,
-                paddingRight: 1,
-              }}
-            >
-              {question}
-              <IconButton onClick={startEditingQuestion} size="small" aria-label="Edit question" sx={{ ml: 0.5 }}>
-                <EditIcon fontSize="small" />
-              </IconButton>
-            </Typography>
-            <button onClick={onDelete} style={{ display: "flex", alignItems: "center", borderRadius: "5px", padding: "5px", backgroundColor: "#c95151"}}>
-                        <DeleteOutlineIcon fontSize="inherit" sx={{color: "white", margin: "0"}}/>
-                <Typography variant="subtitle2" color="white">
-                    Delete Question
-                </Typography>
-            </button>
-          </Box>
-        )}
-      </Box>
+          ) : (
+            <Box sx={{ display: "flex", alignItems: "flex-start", flexDirection: { xs: "column", sm: "row" } }}>
+              <Typography
+                variant="h6"
+                sx={{ flex: 1, wordBreak: "break-word", lineHeight: 1.5, paddingRight: 1 }}
+                onClick={() => setEditingQuestion(true)}
+              >
+                {question}
+              </Typography>
 
-      <TextField
-        fullWidth
-        variant="outlined"
-        placeholder="Type your answer here"
-        value={answer}
-        onChange={(e) => setAnswer(e.target.value)}
-        multiline
-        minRows={3}
-        maxRows={6}
-      />
-    </Box>
+              <ConfirmationDialog
+                onConfirm={onDelete}
+                title="Delete Question"
+                description="Are you sure you want to delete this question? This action cannot be undone."
+                trigger={
+                  <button
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      borderRadius: "5px",
+                      padding: "5px",
+                      backgroundColor: "#c95151",
+                    }}
+                  >
+                    <DeleteOutlineIcon fontSize="inherit" sx={{ color: "white", margin: "0" }} />
+                    <Typography variant="subtitle2" color="white">Delete Question</Typography>
+                  </button>
+                }
+              />
+            </Box>
+          )}
+        </Box>
+
+        <TextField
+          fullWidth
+          variant="outlined"
+          placeholder="Type your answer here"
+          value={answer}
+          onChange={(e) => setAnswer(e.target.value)}
+          multiline
+          minRows={3}
+          maxRows={6}
+        />
+      </Box>
     </div>
   )
 }
-

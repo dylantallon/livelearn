@@ -10,8 +10,8 @@
   font-size: 2rem!important;
   color: white;
   position: fixed;
-  top: 110px;
-  left: 4px;
+  top: 100px;
+  left: 7px;
 }
 
 .score-list {
@@ -26,7 +26,7 @@
   margin-right: 50px;
   border-radius: 5px;
   height: auto;
-  max-height: calc(100vh - 175px);
+  max-height: calc(100vh - 133px);
   overflow: auto;
   background-color: #cacaca;
   border: 3px solid #cacaca;

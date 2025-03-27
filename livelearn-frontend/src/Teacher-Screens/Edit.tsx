@@ -12,11 +12,8 @@ import {
   Menu,
   MenuItem,
   Stack,
-  IconButton,
   TextField
 } from "@mui/material"
-import CheckIcon from "@mui/icons-material/Check"
-import EditIcon from "@mui/icons-material/Edit"
 import AddIcon from "@mui/icons-material/Add"
 import CheckBoxIcon from "@mui/icons-material/CheckBox"
 import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked"
@@ -83,7 +80,7 @@ function Edit() {
       id: `question-${Date.now()}`,
       type,
       title: `New ${type.charAt(0).toUpperCase() + type.slice(1)} Question`,
-      choices: type === "text" ? [] : ["New Choice", "New Choice", "New Choice"],
+      choices: type === "text" ? [] : ["Choice 1", "Choice 2", "Choice 3"],
     };
   
     const updatedQuestions = [...questions, newQuestion];
@@ -200,6 +197,7 @@ function Edit() {
                   variant="outlined"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  onBlur={saveName}
                   autoFocus
                   size="small"
                   multiline
@@ -213,9 +211,6 @@ function Edit() {
                     },
                   }}
                 />
-                <IconButton onClick={saveName} color="primary" aria-label="Save question" size="small" sx={{ mt: 0.5 }}>
-                  <CheckIcon />
-                </IconButton>
               </Stack>
             ) : (
               <Box mb={0} sx={{ display: "flex", alignItems: "flex-start" }}>
@@ -226,12 +221,11 @@ function Edit() {
                     wordBreak: "break-word",
                     lineHeight: 1.5,
                     paddingRight: 1,
+                    cursor: "pointer",
                   }}
+                  onClick={startEditingName}
                 >
                   {name}
-                  <IconButton onClick={startEditingName} size="small" aria-label="Edit question" sx={{ ml: 0.5 }}>
-                    <EditIcon fontSize="small" />
-                  </IconButton>
                 </Typography>
               </Box>
             )}
@@ -318,3 +312,4 @@ function Edit() {
 }
 
 export default Edit
+

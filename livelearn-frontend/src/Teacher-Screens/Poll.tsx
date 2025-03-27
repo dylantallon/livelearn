@@ -19,6 +19,7 @@ import {
 } from "firebase/firestore";
 
 import { AuthContext } from "../Components/AuthContext";
+import { ConfirmationDialog } from "./Components/Confirmation";
 
 function Poll() {
   interface Question {
@@ -27,7 +28,7 @@ function Poll() {
     title: string;
     choices: string[];
   }
-  
+
   interface Poll {
     id: string;
     title: string;
@@ -94,13 +95,23 @@ function Poll() {
     navigate('/edit', { state: { pollId: poll.id } });
   };
 
-  const handleRowClick = (id: string) => {
+  const handleRowClick = (id: string, event?: React.MouseEvent<HTMLDivElement>) => {
+    if (event) {
+      const target = event.target as HTMLElement;
+      if (
+        target.closest("button") ||
+        target.closest(".MuiIconButton-root") ||
+        target.closest("svg")
+      ) return;
+    }
+
     setSelectedPollId((prev) => (prev === id ? null : id));
   };
 
   const handleOutsideClick = (event: React.MouseEvent<HTMLDivElement>) => {
     const target = event.target as HTMLElement;
     if (
+      target.closest("button") ||
       target.closest(".btn-delete") ||
       target.closest(".btn-edit") ||
       target.closest(".btn-view-scores") ||
@@ -131,20 +142,27 @@ function Poll() {
             <div
               key={poll.id}
               className={`survey-row ${selectedPollId === poll.id ? "selected" : ""}`}
-              onClick={() => handleRowClick(poll.id)}
+              onClick={(e) => handleRowClick(poll.id, e)}
             >
               <div className="survey-name">{poll.title}</div>
               <div className="survey-questions">{poll.questions.length} Questions</div>
               <div className="survey-actions">
-                <button onClick={() => handleDeleteClick(poll.id)} className="btn-delete">
-                  <DeleteOutlineIcon fontSize='inherit' /> Delete
-                </button>
                 <button onClick={() => handleEditClick(poll)} className="btn-edit">
                   <EditIcon fontSize='inherit' /> Edit
                 </button>
                 <button onClick={handleScoreClick} className="btn-view-scores">
                   View Scores
                 </button>
+                <ConfirmationDialog
+                  onConfirm={() => handleDeleteClick(poll.id)}
+                  title="Delete Poll"
+                  description={`Are you sure you want to delete "${poll.title}"? This action cannot be undone.`}
+                  trigger={
+                    <button className="btn-delete">
+                      <DeleteOutlineIcon fontSize='inherit' /> Delete
+                    </button>
+                  }
+                />
               </div>
             </div>
           ))
@@ -161,4 +179,3 @@ function Poll() {
 }
 
 export default Poll;
-
