@@ -1,4 +1,4 @@
-/* Ensure no scrollbars & proper sizing */
+
 html, body {
   margin: 0;
   padding: 0;
@@ -19,60 +19,63 @@ html, body {
 /* Main container to align question & choices */
 .main-container {
   display: flex;
-  justify-content: center; /* Center horizontally */
+  justify-content: flex-start; /* Center horizontally */
+  padding-top: 1rem;
+  flex-direction: column;
   align-items: center; /* Center vertically */
   width: 100%;
   height: calc(100vh - 80px); /* Take full screen height minus header */
   background-color: #2f2b2b;
   padding: 2rem 5rem;
-  gap: 5rem; /* Adds spacing between question box and choices */
+  gap: 0.5rem;
 }
 
 /* Question and Choices should be centered */
 .choices-box {
   display: flex;
-  justify-content: center; /* Center horizontally */
-  align-items: center; /* Center vertically */
-  flex: 1;
-  max-width: 50%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  max-width: 800px;
+  gap: 0.5rem; /* ✅ This creates vertical space between choices */
+
 }
 
-.question-box {
+/* .question-box {
   display: flex;
-  justify-content: center; /* Center horizontally */
-  align-items: center; /* Center vertically */
+  justify-content: center; 
+  align-items: center; 
   flex: 1;
   height: 60%;
-  max-width: 50%;
-}
+  max-width: 100%;
+} */
 
 /* Question box styling */
-.question-box {
-  color: black;
-  background-color: white;
-  border-radius: 15px;
-  padding: 2rem;
-  font-size: 2rem;
-  font-weight: bold;
-  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
-  text-align: center;
-}
+  .question-box {
+    color: black;
+    background-color: white;
+    border-radius: 6px;
+    font-size: 2rem;
+    font-weight: bold;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+    display: flex;
+    width: 100%;
+    max-width: 800px;              /* 🔥 Full screen width */
+    height: 10%;
+    box-sizing: border-box;    /* include padding in width */
+    margin: 0 0.2rem;
+  }
 
 /* Question text should be centered */
 .question-text {
-  margin: 0;
-  text-align: center;
+  display: flex;  
   width: 100%;
+  align-items: center;
+  font-size: 1rem;
+  padding: 0 1rem;
 }
 
-/* Choices container */
-.choices-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-  flex: 1;
-}
 
 /* Choice boxes */
 .choice {
@@ -82,15 +85,45 @@ html, body {
   text-align: center;
   font-size: 1.5rem;
   font-weight: bold;
-  border-radius: 15px;
+  border-radius: 6px;
   box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
   cursor: pointer;
   transition: 0.3s;
   width: 100%;
+  height: 10%;
   max-width: 100%;
+  display: flex;
+  align-items: center;      /* vertical center */
+  text-align: center;
+  gap: 1rem ;  
 }
 
 /* Hover effect for choices */
 .choice:hover {
   background-color: #f18730;
+}
+
+.main-container.has-image {
+  gap: 1.5rem;
+}
+
+.main-container.no-image {
+  gap: 3rem; /* More breathing room when no image */
+}
+
+/* Image box */
+.image-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 800px;     
+  margin: 1rem 0;
+}
+
+.question-image {
+  width: 100%;
+  height: auto;              
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.15);
+  object-fit: contain;  
 }

@@ -20,13 +20,14 @@ const App = () => {
   const [questionIndex, setQuestionIndex] = useState(0);
   const [userAnswers, setUserAnswers] = useState<string[]>([]);
   const navigate = useNavigate();
+  
 
   type Question =
-    | { type: "MCQ"; question: string; options: string[]; answer: string; image?: string;}
+    | { type: "MCQ"; question: string; options: string[]; answer: string; image?: string }
     | { type: "FRQ"; question: string; acceptedAnswers: string[] };
 
   const questions: Question[] = [
-    { type: "MCQ", question: "What is 2 + 2?", options: ["3", "4", "5", "6"], answer: "4", image: "/public/unnamed.png"},
+    { type: "MCQ", question: "What is 2 + 2?", options: ["[1, 2, 3]", "[1, 2, 3, 4]", "[4]", "Error"], answer: "[1, 2, 3, 4]", image: "public/snippet.png" },
     { type: "MCQ", question: "What is 3 + 5?", options: ["7", "8", "9", "10"], answer: "8" },
     { type: "FRQ", question: "Is the sky blue?", acceptedAnswers: ["Yes", "yes", "ye"] },
   ];
@@ -94,8 +95,24 @@ const App = () => {
             />
           }
         />
-        <Route path="/Result" element={<Result onShowAnswer={handleShowAnswer} onNext={handleNextQuestion} />} />
-        <Route path="/FeedBack" element={<Feedback question={questions[questionIndex]} onNext={handleNextQuestion} />} />
+       <Route
+  path="/Result"
+  element={
+    <Result
+      onShowAnswer={handleShowAnswer}
+      onNext={handleNextQuestion}
+    />
+  }
+/>
+<Route
+  path="/FeedBack"
+  element={
+    <Feedback
+      question={questions[questionIndex]}
+      onNext={handleNextQuestion}
+    />
+  }
+/>
         <Route path="/finished" element={<FinalScreen score={score} total={totalQuestions} />} />
       </Routes>
     </AuthProvider>
