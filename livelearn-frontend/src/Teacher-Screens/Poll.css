@@ -12,7 +12,6 @@
   background-color: #cacaca;
   padding-top: 10px;
   padding-bottom: 10px;
-  display: flex;
   flex-wrap: wrap;
 }
 
@@ -34,13 +33,13 @@
   margin-right: 50px;
   border-radius: 5px;
   height: auto;
-  max-height: calc(100vh - 165px);
+  max-height: calc(100vh - 133px);
   overflow: auto;
   background-color: #cacaca;
   border: 3px solid #cacaca;
   padding: 0.75rem;
-  padding-top: 0;;
-  position: relative; 
+  padding-top: 0;
+  position: relative;
 }
 
 .survey-row {
@@ -52,7 +51,8 @@
   justify-content: space-between;
   border-radius: 5px;
   border: solid 2px transparent;
-  width: calc(100% - 40px);
+  width: calc(100% - 24px);
+  min-width: none;
 }
 
 .survey-row:hover {
@@ -71,11 +71,13 @@
   flex: 2;
   font-size: 1.1rem;
   text-align: left;
+  margin-right: 0.5rem;
 }
 
 .survey-questions {
   flex: 1;
   text-align: center;
+  margin-right: 0.5rem;
 }
 
 .survey-actions {
@@ -84,6 +86,11 @@
   flex-wrap: nowrap;
   gap: 0.5rem;
   justify-content: flex-end;
+}
+
+.survey-actions button {
+  position: relative;
+  z-index: 2;
 }
 
 button {
@@ -111,6 +118,7 @@ button {
 
 .btn-view-scores {
   background-color: #8a8a8a;
+  color: white;
 }
 
 .survey-buttons {
@@ -128,6 +136,7 @@ button {
   display: flex;
   align-items: center;
   gap: 2px;
+  color: white;
 }
 
 .btn-start-session {

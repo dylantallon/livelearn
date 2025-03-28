@@ -5,8 +5,7 @@ import * as logger from "firebase-functions/logger";
 
 import router from "./routes";
 
-const port = 5000;
-const app = express();
+export const app = express();
 
 // Set up middleware to parse incoming request body
 app.use(express.urlencoded({extended: true}));
@@ -32,10 +31,6 @@ app.use((req, res) => {
     type: "error",
     message: "The URL you are trying to reach is not hosted on our server",
   });
-});
-
-app.listen(port, () => {
-  logger.log(`The server started listening on port ${port}`);
 });
 
 export const api = onRequest(app);
