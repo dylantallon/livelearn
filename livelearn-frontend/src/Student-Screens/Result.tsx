@@ -1,38 +1,73 @@
-import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
-import "./Result.css";
+
+
+import { useLocation } from "react-router-dom"; 
+import React from "react";
+import "./Result.css"; 
 import Header from "../Components/Header";
+import { useNavigate } from "react-router-dom";
 
 interface ResultProps {
+  question: { question: string; options: string[]; image?: string };
   onShowAnswer: () => void;
   onNext: () => void;
 }
 
-const Result: React.FC<ResultProps> = ({ onShowAnswer, onNext }) => {
+const Result: React.FC<ResultProps> = ({ question, onNext }) => {
+  const hasImage =  !!question.image;
   const location = useLocation();
   const params = new URLSearchParams(location.search);
-  const userAnswer = params.get("answer") || "No answer selected";
-  const correctAnswer = params.get("correctAnswer") || "Answer not available";
-  //const [showAnswer, setShowAnswer] = useState(false);
+  const navigate = useNavigate();
 
-  return (
-    <div className="result-container">
+  const userAnswer = params.get("answer") || "";
+  const correctAnswer = params.get("correctAnswer") || "";
+  const questionIndex = parseInt(params.get("questionIndex") || "0");
+
+ return (
+    <div className="result-main">
       <Header />
-      <div className="answer-section">
-        <h1 className="answer-text">You answered:</h1>
-        <div className="answer-box">{userAnswer}</div>
+      <div className={`result-container ${hasImage ? "has-image" : "no-image"}`}>
+        <div className="result-question-box">
+          <p className="result-question-text">{question.question}</p>
+        </div>
 
+        {hasImage && (
+          <div className="result-image-box">
+            <img
+              src={question.image}
+              alt="Question visual"
+              className="result-question-image"
+            />
+          </div>
+        )}
 
-        <div style={{ display: "flex", gap: "1rem", marginTop: "2rem" }}>
-  <button className="next-btn" onClick={onShowAnswer}>
-    Show Answer
-  </button>
-  <button className="next-btn" onClick={onNext}>
-    Next Question
-  </button>
-</div>
+        <div className="result-choices-box">
+        {question.options.map((option, index) => {
+            const isSelected = option === userAnswer;
+            const className = isSelected ? "result-choice result-selected-answer" : "result-choice";
+
+            return (
+              <div key={index} className={className}>
+                {option}
+              </div>
+            );
+          })}
+        </div>
+     
       </div>
-    </div>
+ <div className="result-button-row">
+      <button
+        className="next-btn"
+        onClick={() =>
+          navigate(
+            `/FeedBack?answer=${userAnswer}&correctAnswer=${correctAnswer}&questionIndex=${questionIndex}`
+          )
+        }
+      >
+        Show Answer
+      </button>
+          <button className="next-btn" onClick={onNext}>Next Question</button>
+        </div>
+      </div>
   );
 };
 

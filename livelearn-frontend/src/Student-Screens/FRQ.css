@@ -32,13 +32,11 @@ html, body {
   color: black;
   background-color: white;
   border-radius: 15px;
-  padding: 2rem;
   font-size: 2rem;
   font-weight: bold;
   box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
-  text-align: center;
-  max-width: 80%;
-  margin-bottom: 2rem;
+  width: 100%;
+  max-width: 800px;
 }
 
 /* Textarea for response */
@@ -55,19 +53,97 @@ html, body {
   color: black;
 }
 
-/* Submit button */
-.submit-button {
-  margin-top: 1.5rem;
-  padding: 1rem 2rem;
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: white;
-  background-color: #f18730;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: 0.3s;
+.frq-input-box {
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
+
+.frq-textarea {
+  width: 100%;
+  max-width: 800px;
+  padding: 1rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-radius: 10px;
+  border: 2px solid #ccc;
+  resize: none;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.15);
+  background-color: white;
+  margin: 0 0.2rem;
+  color: black;
+  font-family: inherit;
+}
+
+.frq-result-answer-box {
+  background-color: #cde4ff; /* light blue */
+  border: 2px solid #3b82f6;
+  color: black;
+  padding: 1.5rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 800px;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.15);
+  word-break: break-word;
+}
+
+.frq-feedback-answer-box {
+  padding: 1.5rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 800px;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.15);
+  word-break: break-word;
+}
+
+.frq-correct {
+  background-color: #d1fae5; /* green */
+  border: 2px solid #10b981;
+  color: #065f46;
+}
+
+.frq-incorrect {
+  background-color: #fee2e2; /* red */
+  border: 2px solid #ef4444;
+  color: #991b1b;
+}
+
+.frq-correct-answer-box {
+  background-color: #e6ffed; 
+  border: 2px solid #22c55e; 
+  border-radius: 10px;
+  padding: 1.5rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #166534;
+  width: 100%;
+  max-width: 800px;
+  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.frq-feedback-boxes {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 1rem;
+}
+
+.button-row-bottom {
+  display: flex;
+  justify-content: space-between; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 1rem;
+  gap: 1rem;                       
+
+}
+
 
 /* Hover effect */
 .submit-button:hover {
