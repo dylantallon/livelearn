@@ -20,13 +20,15 @@ html, body {
 .main-container {
   display: flex;
   justify-content: flex-start; /* Center horizontally */
-  padding-top: 1rem;
+  padding-top: 1.75rem;
+  padding-bottom: 1.75rem;
   flex-direction: column;
   align-items: center; /* Center vertically */
-  width: 100%;
-  height: calc(100vh - 80px); /* Take full screen height minus header */
-  background-color: #2f2b2b;
-  padding: 2rem 5rem;
+  height: auto; /* Take full screen height minus header */
+  background-color: #767474;
+  border-radius: 1rem;
+  margin-right: 325px;
+  margin-left: 325px;
   gap: 0.5rem;
 }
 
@@ -38,7 +40,7 @@ html, body {
   justify-content: flex-start;
   width: 100%;
   max-width: 800px;
-  gap: 0.5rem; /* ✅ This creates vertical space between choices */
+  gap: 0.75rem; /* ✅ This creates vertical space between choices */
 
 }
 
@@ -72,7 +74,7 @@ html, body {
   display: flex;  
   width: 100%;
   align-items: center;
-  font-size: 1rem;
+  font-size: 1.2rem;
   padding: 0 1rem;
 }
 
@@ -81,21 +83,16 @@ html, body {
 .choice {
   background-color: white;
   color: black;
-  padding: 2rem;
-  text-align: center;
-  font-size: 1.5rem;
+  padding: 1.25rem; /* less vertical padding */
+  font-size: 1.1rem;
   font-weight: bold;
   border-radius: 6px;
   box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-  transition: 0.3s;
   width: 100%;
-  height: 10%;
-  max-width: 100%;
+  cursor: pointer;
   display: flex;
-  align-items: center;      /* vertical center */
-  text-align: center;
-  gap: 1rem ;  
+  transition: 0.3s;
+  user-select: none;
 }
 
 /* Hover effect for choices */
@@ -119,11 +116,19 @@ html, body {
   width: 100%;
   max-width: 800px;     
   margin: 1rem 0;
+  height: auto;
+  overflow: hidden; /* ✅ prevents overflow */
 }
 
 .question-image {
   width: 100%;
   height: auto;              
   box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.15);
-  object-fit: contain;  
+  object-fit:cover;  
 }
+
+/* .selected-answer {
+  background-color: #cde4ff; 
+  border: 2px solid #3b82f6;
+  font-weight: bold;
+} */

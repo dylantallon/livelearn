@@ -1,46 +1,199 @@
-/* Center the content */
-.result-container {
+
+
+
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+    height: 100%;
+  }
+  
+  /* Ensure the container takes up the entire screen */
+  .result-main {
+    display: flex;
+    flex-direction: column;
+    height: 100vh; /* Full viewport height */
+    width: 100vw;
+    background-color: #2f2b2b;
+  }
+  
+  /* Main container to align question & choices */
+  .result-container {
+    display: flex;
+    justify-content: flex-start; /* Center horizontally */
+    padding-top: 1.75rem;
+    padding-bottom: 1.75rem;
+    flex-direction: column;
+    align-items: center; /* Center vertically */
+    height: auto; /* Take full screen height minus header */
+    background-color: #767474;
+    border-radius: 1rem;
+    margin-right: 325px;
+    margin-left: 325px;
+    gap: 0.5rem;
+  }
+  
+
+  /* .result-choices-box {
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 100vh;
-    text-align: center;
-    font-size: 3rem;
-    font-weight: bold;
-}
+    justify-content: flex-start;
+    width: 100%;
+    max-width: 800px;
+    gap: 0.5rem; 
+    box-sizing: border-box;
+  
+  } */
 
-/* Container for "You answered" text and answer box */
-.answer-section {
+  .result-choices-box {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1.5rem;
-    margin-top: 17vh; /* Pushes content slightly down */
-    width: 60%; /* Limits width for readability */
-}
-
-/* "You answered" text */
-.answer-text {
-    font-size: 2rem;
-    color:white;
-    font-weight: bold;
-}
-
-/* Box that displays the answer */
-.answer-box {
+    justify-content: flex-start;
+    width: 100%;
+    max-width: 800px;
+    gap: 0.75rem; /* spacing between choices */
+  }
+  
+  /* .question-box {
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+    flex: 1;
+    height: 60%;
+    max-width: 100%;
+  } */
+  
+  /* Question box styling */
+    .result-question-box {
+      color: black;
+      background-color: white;
+      border-radius: 6px;
+      font-size: 2rem;
+      font-weight: bold;
+      box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+      display: flex;
+      width: 100%;
+      max-width: 800px;              /* 🔥 Full screen width */
+      height: 10%;
+      box-sizing: border-box;    /* include padding in width */
+      margin: 0 0.2rem;
+    }
+  
+  /* Question text should be centered */
+  .result-question-text {
+    display: flex;  
+    width: 100%;
+    align-items: center;
+    font-size: 1.2rem;
+    padding: 0 1rem;
+  }
+  
+  
+  /* Choice boxes */
+  /* .result-choice {
     background-color: white;
-    border: 2px solid black;
-    color: rgb(0, 0, 0);
-    border-radius: 10px;
+    color: black;
     padding: 2rem;
-    font-size: 1.8rem;
-    font-weight: bold;
-    width: 80%; /* Matches answer-section width */
-    min-height: 6rem; /* Ensures a larger default height */
-    max-height: 40vh; /* Prevents it from being too large */
-    overflow-y: auto; /* Allows scrolling for very long answers */
-    word-wrap: break-word; /* Breaks long words to prevent overflow */
     text-align: center;
-    margin-bottom: 3rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    border-radius: 6px;
     box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
-}
+    cursor: pointer;
+    transition: 0.3s;
+    width: 100%;
+    height: 10%;
+    max-width: 100%;
+    display: flex;
+    align-items: center;      
+    text-align: center;
+    gap: 1rem ;  
+  } */
+
+  .result-choice {
+    background-color: white;
+    color: black;
+    padding: 1.25rem; /* less vertical padding */
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 6px;
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    cursor: pointer;
+    display: flex;
+    transition: 0.3s;
+    user-select: none;
+  }
+  
+  
+  .result-container.has-image {
+    gap: 1.5rem;
+  }
+  
+  .result-container.no-image {
+    gap: 3rem; /* More breathing room when no image */
+  }
+  
+  /* Image box */
+  .result-image-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 800px;     
+    margin: 1rem 0;
+  }
+  
+  .result-question-image {
+    width: 100%;
+    height: auto;              
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.15);
+    object-fit: contain;  
+  }
+  
+  .result-selected-answer {
+    background-color: #cde4ff; /* light blue */
+    border: 2px solid #3b82f6;
+    color: black;
+  }
+
+  .result-button-row {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    padding-top: 2rem;
+  }
+  
+  .next-btn {
+    display: flex;
+    justify-content: center; 
+    align-items: center;     
+    background-color: #007bff; /* light blue */
+    border: 2px solid #3b82f6;
+    color: rgb(255, 255, 255);
+    font-size: 1.1rem;
+    font-weight: bold;
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .next-btn:hover {
+    background-color: #4f46e5;
+  }
+  
+  .correct-answer {
+    background-color: #d1fae5; /* green */
+    border: 2px solid #10b981;
+    color: #065f46;
+  }
+  
+  .incorrect-answer {
+    background-color: #fee2e2; /* red */
+    border: 2px solid #ef4444;
+    color: #991b1b;
+  }
