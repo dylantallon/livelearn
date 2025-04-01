@@ -5,7 +5,7 @@ import {FieldValue} from "firebase-admin/firestore";
 import {getAuth} from "firebase-admin/auth";
 
 import {db} from "../config/firebaseConfig";
-import {generateLtiConfigXml} from "../utils/generateLtiConfigXml";
+import {generateLtiConfigJson} from "../utils/generateLtiConfig";
 import {
   getInstructorRoles,
   getAssistantRoles,
@@ -108,9 +108,8 @@ class LtiController {
   }
 
   async getLtiConfig(req: Request, res: Response) {
-    const xml = generateLtiConfigXml();
-    res.set("Content-Type", "application/xml");
-    res.send(xml);
+    res.set("Content-Type", "application/json");
+    res.send(generateLtiConfigJson());
   }
 
   async enableCourse(req: Request, res: Response) {

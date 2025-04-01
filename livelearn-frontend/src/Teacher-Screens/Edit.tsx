@@ -33,6 +33,8 @@ function Edit() {
     title: string
     choices?: string[]
     images?: string[]
+    points?: number
+    answers?: string[]
   }
 
   const location = useLocation()
@@ -55,13 +57,11 @@ function Edit() {
         if (docSnap.exists()) {
           const pollData = docSnap.data()
           setName(pollData.title)
-          setQuestions(pollData.questions);
-        }
-        else {
+          setQuestions(pollData.questions)
+        } else {
           console.error("Poll could not be found")
         }
-      } 
-      catch (err) {
+      } catch (err) {
         console.error("Error loading poll:", err)
       }
     }
@@ -83,129 +83,136 @@ function Edit() {
       title: `New ${type.charAt(0).toUpperCase() + type.slice(1)} Question`,
       choices: type === "text" ? [] : ["Choice 1", "Choice 2", "Choice 3"],
       images: [],
-    };
-  
-    const updatedQuestions = [...questions, newQuestion];
-    setQuestions(updatedQuestions);
-    handleClose();
-  
-    try {
-      if (!pollId) return;
-      const pollRef = doc(db, "polls", pollId);
-      await updateDoc(pollRef, { questions: updatedQuestions });
-    } catch (error) {
-      console.error("Failed to update questions in Firestore:", error);
+      points: 1,
+      answers: [], // ✅ always include answers
     }
-  };
+
+    const updatedQuestions = [...questions, newQuestion]
+    setQuestions(updatedQuestions)
+    handleClose()
+
+    try {
+      if (!pollId) return
+      const pollRef = doc(db, "polls", pollId)
+      await updateDoc(pollRef, { questions: updatedQuestions })
+    } catch (error) {
+      console.error("Failed to update questions in Firestore:", error)
+    }
+  }
 
   const startEditingName = () => {
     setEditingName(true)
   }
 
   const saveName = async () => {
-    setEditingName(false);
+    setEditingName(false)
     try {
-      if (!pollId) return;
-      const pollRef = doc(db, "polls", pollId);
-      await updateDoc(pollRef, { title: name });
+      if (!pollId) return
+      const pollRef = doc(db, "polls", pollId)
+      await updateDoc(pollRef, { title: name })
     } catch (error) {
-      console.error("Failed to update poll title:", error);
+      console.error("Failed to update poll title:", error)
     }
-  };
+  }
 
   const updateQuestionTitle = async (id: string, newTitle: string) => {
     const updated = questions.map((q) =>
       q.id === id ? { ...q, title: newTitle } : q
-    );
-    setQuestions(updated);
-  
+    )
+    setQuestions(updated)
+
     try {
-      if (!pollId) return;
-      const pollRef = doc(db, "polls", pollId);
-  
-      const cleaned = updated.map(({ id, title, type, choices, images }) => ({
-        id,
-        title,
-        type,
-        choices: choices || [],
-        images: images || [],
-      }));
-  
-      await updateDoc(pollRef, { questions: cleaned });
+      if (!pollId) return
+      const pollRef = doc(db, "polls", pollId)
+      await updateDoc(pollRef, { questions: cleanQuestions(updated) })
     } catch (error) {
-      console.error("Failed to update title in Firestore:", error);
+      console.error("Failed to update title in Firestore:", error)
     }
-  };
+  }
 
   const updateQuestionChoices = async (id: string, newChoices: string[]) => {
     const updated = questions.map((q) =>
       q.id === id ? { ...q, choices: newChoices } : q
-    );
-    setQuestions(updated);
-  
+    )
+    setQuestions(updated)
+
     try {
-      if (!pollId) return;
-      const pollRef = doc(db, "polls", pollId);
-  
-      const cleaned = updated.map(({ id, title, type, choices, images }) => ({
-        id,
-        title,
-        type,
-        choices: choices || [],
-        images: images || [],
-      }));
-  
-      await updateDoc(pollRef, { questions: cleaned });
+      if (!pollId) return
+      const pollRef = doc(db, "polls", pollId)
+      await updateDoc(pollRef, { questions: cleanQuestions(updated) })
     } catch (error) {
-      console.error("Failed to update choices in Firestore:", error);
+      console.error("Failed to update choices in Firestore:", error)
     }
-  };
+  }
 
   const updateQuestionImages = async (id: string, newImages: string[]) => {
     const updated = questions.map((q) =>
       q.id === id ? { ...q, images: newImages } : q
-    );
-    setQuestions(updated);
+    )
+    setQuestions(updated)
 
     try {
-      if (!pollId) return;
-      const pollRef = doc(db, "polls", pollId);
-
-      const cleaned = updated.map(({ id, title, type, choices, images }) => ({
-        id,
-        title,
-        type,
-        choices: choices || [],
-        images: images || [],
-      }));
-
-      await updateDoc(pollRef, { questions: cleaned });
+      if (!pollId) return
+      const pollRef = doc(db, "polls", pollId)
+      await updateDoc(pollRef, { questions: cleanQuestions(updated) })
     } catch (error) {
-      console.error("Failed to update images in Firestore:", error);
+      console.error("Failed to update images in Firestore:", error)
     }
-  };
+  }
+
+  const updateQuestionPoints = async (id: string, newPoints: number) => {
+    const updated = questions.map((q) =>
+      q.id === id ? { ...q, points: newPoints } : q
+    )
+    setQuestions(updated)
+
+    try {
+      if (!pollId) return
+      const pollRef = doc(db, "polls", pollId)
+      await updateDoc(pollRef, { questions: cleanQuestions(updated) })
+    } catch (error) {
+      console.error("Failed to update points in Firestore:", error)
+    }
+  }
+
+  const handleAnswersChange = async (id: string, newAnswers: string[]) => {
+    const updated = questions.map((q) =>
+      q.id === id ? { ...q, answers: newAnswers } : q
+    )
+    setQuestions(updated)
+
+    try {
+      if (!pollId) return
+      const pollRef = doc(db, "polls", pollId)
+      await updateDoc(pollRef, { questions: cleanQuestions(updated) })
+    } catch (error) {
+      console.error("Failed to update answers in Firestore:", error)
+    }
+  }
 
   const deleteQuestion = async (id: string) => {
-    const updatedQuestions = questions.filter((q) => q.id !== id);
-    setQuestions(updatedQuestions);
-  
+    const updatedQuestions = questions.filter((q) => q.id !== id)
+    setQuestions(updatedQuestions)
+
     try {
-      if (!pollId) return;
-      const pollRef = doc(db, "polls", pollId);
-  
-      const cleaned = updatedQuestions.map(({ id, title, type, choices, images }) => ({
-        id,
-        title,
-        type,
-        choices: choices || [],
-        images: images || [],
-      }));
-  
-      await updateDoc(pollRef, { questions: cleaned });
+      if (!pollId) return
+      const pollRef = doc(db, "polls", pollId)
+      await updateDoc(pollRef, { questions: cleanQuestions(updatedQuestions) })
     } catch (error) {
-      console.error("Failed to delete question from Firestore:", error);
+      console.error("Failed to delete question from Firestore:", error)
     }
-  };
+  }
+
+  const cleanQuestions = (list: Question[]) =>
+    list.map(({ id, title, type, choices, images, points, answers }) => ({
+      id,
+      title,
+      type,
+      choices: choices || [],
+      images: images || [],
+      points: points ?? 1,
+      answers: answers || [],
+    }))
 
   const navigate = useNavigate()
   const handleBackClick = () => {
@@ -294,11 +301,16 @@ function Edit() {
             onQuestionChange: (newTitle: string) => updateQuestionTitle(question.id, newTitle),
             onImagesChange: (newImages: string[]) => updateQuestionImages(question.id, newImages),
             onDelete: () => deleteQuestion(question.id),
+            initialPoints: question.points ?? 1,
+            onPointsChange: (newPoints: number) => updateQuestionPoints(question.id, newPoints),
+            answers: question.answers || [],
+            onAnswersChange: (newAnswers: string[]) => handleAnswersChange(question.id, newAnswers),
           }
 
           if (question.type === "radio") {
             return (
               <RadioQuestion
+                key={question.id}
                 {...commonProps}
                 initialChoices={question.choices || []}
                 onChoicesChange={(newChoices) => updateQuestionChoices(question.id, newChoices)}
@@ -307,13 +319,19 @@ function Edit() {
           } else if (question.type === "checkbox") {
             return (
               <CheckboxQuestion
+                key={question.id}
                 {...commonProps}
                 initialChoices={question.choices || []}
                 onChoicesChange={(newChoices) => updateQuestionChoices(question.id, newChoices)}
               />
             )
           } else if (question.type === "text") {
-            return <TextQuestion {...commonProps} />
+            return (
+              <TextQuestion
+                key={question.id}
+                {...commonProps}
+              />
+            )
           }
 
           return null

@@ -4,9 +4,9 @@ import { useState, useRef } from "react"
 import {
   Box,
   Typography,
+  TextField,
   Checkbox,
   FormControlLabel,
-  TextField,
   IconButton,
   Stack,
 } from "@mui/material"
@@ -25,6 +25,10 @@ interface CheckboxQuestionProps {
   onDelete: () => void
   initialImages: string[]
   onImagesChange?: (images: string[]) => void
+  initialPoints?: number
+  onPointsChange?: (points: number) => void
+  answers: string[]
+  onAnswersChange: (answers: string[]) => void
 }
 
 export default function CheckboxQuestion({
@@ -35,14 +39,19 @@ export default function CheckboxQuestion({
   onDelete,
   initialImages,
   onImagesChange,
+  initialPoints = 1,
+  onPointsChange,
+  answers,
+  onAnswersChange,
 }: CheckboxQuestionProps) {
   const [question, setQuestion] = useState(initialQuestion)
   const [choices, setChoices] = useState(initialChoices)
-  const [selectedChoices, setSelectedChoices] = useState<string[]>([])
   const [editingQuestion, setEditingQuestion] = useState(false)
   const [editingChoiceIndex, setEditingChoiceIndex] = useState<number | null>(null)
   const [editingChoiceValue, setEditingChoiceValue] = useState("")
   const [images, setImages] = useState(initialImages)
+  const [points, setPoints] = useState(initialPoints)
+  const [editingPoints, setEditingPoints] = useState(false)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
 
   const saveQuestion = () => {
@@ -57,13 +66,20 @@ export default function CheckboxQuestion({
       newChoices[editingChoiceIndex] = editingChoiceValue
       setChoices(newChoices)
       onChoicesChange(newChoices)
-      if (selectedChoices.includes(oldChoice)) {
-        setSelectedChoices((prev) =>
-          prev.map((c) => (c === oldChoice ? editingChoiceValue : c))
-        )
+
+      // If user edited a selected choice, update in answers
+      if (answers.includes(oldChoice)) {
+        const updatedAnswers = answers.map((a) => (a === oldChoice ? editingChoiceValue : a))
+        onAnswersChange(updatedAnswers)
       }
+
       setEditingChoiceIndex(null)
     }
+  }
+
+  const savePoints = () => {
+    setEditingPoints(false)
+    onPointsChange?.(points)
   }
 
   const addChoice = () => {
@@ -77,36 +93,28 @@ export default function CheckboxQuestion({
     const newChoices = choices.filter((_, i) => i !== index)
     setChoices(newChoices)
     onChoicesChange(newChoices)
-    setSelectedChoices((prev) => prev.filter((c) => c !== choiceToDelete))
+
+    if (answers.includes(choiceToDelete)) {
+      const updatedAnswers = answers.filter((a) => a !== choiceToDelete)
+      onAnswersChange(updatedAnswers)
+    }
   }
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files
-    if (!files) return
-
-    const readers: Promise<string>[] = []
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i]
+    const file = e.target.files?.[0]
+    if (file) {
       const reader = new FileReader()
-      readers.push(
-        new Promise((resolve) => {
-          reader.onloadend = () => {
-            if (typeof reader.result === "string") resolve(reader.result)
-          }
-          reader.readAsDataURL(file)
-        })
-      )
+      reader.onloadend = () => {
+        if (typeof reader.result === "string") {
+          setImages((prev) => {
+            const updated = [...prev, reader.result as string]
+            onImagesChange?.(updated)
+            return updated
+          })
+        }
+      }
+      reader.readAsDataURL(file)
     }
-
-    Promise.all(readers).then((results) => {
-      setImages((prev) => {
-        const updated = [...prev, ...results]
-        onImagesChange?.(updated)
-        return updated
-      })
-    })
-
     e.target.value = ""
   }
 
@@ -118,105 +126,137 @@ export default function CheckboxQuestion({
     })
   }
 
+  const handleCheckboxChange = (choice: string) => {
+    const isSelected = answers.includes(choice)
+    const updatedAnswers = isSelected
+      ? answers.filter((a) => a !== choice)
+      : [...answers, choice]
+    onAnswersChange(updatedAnswers)
+  }
+
   return (
     <div className="question-div">
       <Box>
         <Box mb={1}>
-          {editingQuestion ? (
-            <TextField
-              fullWidth
-              variant="outlined"
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              onBlur={saveQuestion}
-              autoFocus
-              size="small"
-              multiline
-              minRows={1}
-              maxRows={4}
-              sx={{ "& .MuiOutlinedInput-root": { alignItems: "flex-start" } }}
-            />
-          ) : (
-            <Box
-              mb={1}
-              sx={{
-                display: "flex",
-                flexWrap: "wrap",
-                alignItems: "flex-start",
-                flexDirection: { xs: "column", sm: "row" },
-              }}
-            >
+          <Box sx={{ display: "flex", flexDirection: "column" }}>
+            {editingPoints ? (
+              <TextField
+                size="small"
+                value={points}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value, 10)
+                  if (!isNaN(value) && value >= 0) setPoints(value)
+                }}
+                onBlur={savePoints}
+                type="number"
+                sx={{
+                  maxWidth: 80,
+                  mb: 0.5,
+                  "& .MuiInputBase-input": {
+                    fontSize: "0.875rem",
+                    color: "gray",
+                  },
+                }}
+                autoFocus
+              />
+            ) : (
               <Typography
-                variant="h6"
-                sx={{ flex: 1, wordBreak: "break-word", lineHeight: 1.5, paddingRight: 1 }}
-                onClick={() => setEditingQuestion(true)}
+                variant="body2"
+                color="gray"
+                sx={{ cursor: "pointer", mb: 0.5 }}
+                onClick={() => setEditingPoints(true)}
               >
-                {question}
+                Points: {points}
               </Typography>
-              <div style={{ display: "flex", flexWrap: "wrap" }}>
-                <button
-                  onClick={addChoice}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    border: "1px solid #007bff",
-                    borderRadius: "5px",
-                    padding: "5px",
-                    backgroundColor: "white",
-                  }}
+            )}
+
+            {editingQuestion ? (
+              <TextField
+                fullWidth
+                variant="outlined"
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                onBlur={saveQuestion}
+                autoFocus
+                size="small"
+                multiline
+                minRows={1}
+                maxRows={4}
+                sx={{ "& .MuiOutlinedInput-root": { alignItems: "flex-start" } }}
+              />
+            ) : (
+              <Box sx={{ display: "flex", alignItems: "flex-start", flexDirection: { xs: "column", sm: "row" } }}>
+                <Typography
+                  variant="h6"
+                  sx={{ flex: 1, wordBreak: "break-word", lineHeight: 1.5, paddingRight: 1 }}
+                  onClick={() => setEditingQuestion(true)}
                 >
-                  <AddIcon fontSize="inherit" sx={{ color: "#007bff", margin: "0" }} />
-                  <Typography variant="subtitle2" color="#007bff">Add Option</Typography>
-                </button>
+                  {question}
+                </Typography>
+                <div style={{ display: "flex", flexWrap: "wrap" }}>
+                  <button
+                    onClick={addChoice}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      border: "1px solid #007bff",
+                      borderRadius: "5px",
+                      padding: "5px",
+                      backgroundColor: "white",
+                    }}
+                  >
+                    <AddIcon fontSize="inherit" sx={{ color: "#007bff", margin: "0" }} />
+                    <Typography variant="subtitle2" color="#007bff">Add Choice</Typography>
+                  </button>
 
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    border: "1px solid #007bff",
-                    borderRadius: "5px",
-                    padding: "5px",
-                    marginLeft: "5px",
-                    backgroundColor: "white",
-                  }}
-                >
-                  <ImageIcon fontSize="inherit" sx={{ color: "#007bff", margin: "0" }} />
-                  <Typography variant="subtitle2" color="#007bff">Add Image</Typography>
-                </button>
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      border: "1px solid #007bff",
+                      borderRadius: "5px",
+                      padding: "5px",
+                      marginLeft: "5px",
+                      backgroundColor: "white",
+                    }}
+                  >
+                    <ImageIcon fontSize="inherit" sx={{ color: "#007bff", margin: "0" }} />
+                    <Typography variant="subtitle2" color="#007bff">Add Image</Typography>
+                  </button>
 
-                <input
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  style={{ display: "none" }}
-                  ref={fileInputRef}
-                  onChange={handleImageUpload}
-                />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={fileInputRef}
+                    style={{ display: "none" }}
+                    onChange={handleImageUpload}
+                  />
 
-                <ConfirmationDialog
-                  onConfirm={onDelete}
-                  title="Delete Question"
-                  description="Are you sure you want to delete this question? This action cannot be undone."
-                  trigger={
-                    <button
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        borderRadius: "5px",
-                        padding: "5px",
-                        marginLeft: "5px",
-                        backgroundColor: "#c95151",
-                      }}
-                    >
-                      <DeleteOutlineIcon fontSize="inherit" sx={{ color: "white", margin: "0" }} />
-                      <Typography variant="subtitle2" color="white">Delete Question</Typography>
-                    </button>
-                  }
-                />
-              </div>
-            </Box>
-          )}
+                  <ConfirmationDialog
+                    onConfirm={onDelete}
+                    title="Delete Question"
+                    description="Are you sure you want to delete this question? This action cannot be undone."
+                    trigger={
+                      <button
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          borderRadius: "5px",
+                          padding: "5px",
+                          marginLeft: "5px",
+                          backgroundColor: "#c95151",
+                        }}
+                      >
+                        <DeleteOutlineIcon fontSize="inherit" sx={{ color: "white", margin: "0" }} />
+                        <Typography variant="subtitle2" color="white">Delete Question</Typography>
+                      </button>
+                    }
+                  />
+                </div>
+              </Box>
+            )}
+          </Box>
 
           {images.length > 0 && (
             <Box mt={2} sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
@@ -244,7 +284,7 @@ export default function CheckboxQuestion({
                         }}
                       >
                         <DeleteIcon fontSize="small" />
-                    </IconButton>
+                      </IconButton>
                     }
                   />
                 </Box>
@@ -253,82 +293,69 @@ export default function CheckboxQuestion({
           )}
         </Box>
 
-        <Box>
-          {choices.map((choice, index) => (
-            <Box
-              key={index}
-              sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0 }}
-            >
-              {editingChoiceIndex === index ? (
-                <Stack direction="row" spacing={1} alignItems="center" sx={{ flex: 1 }}>
-                  <Checkbox checked={selectedChoices.includes(choice)} disabled />
-                  <TextField
-                    fullWidth
-                    variant="outlined"
-                    value={editingChoiceValue}
-                    onChange={(e) => setEditingChoiceValue(e.target.value)}
-                    onBlur={saveChoice}
-                    autoFocus
-                    size="small"
-                    multiline
-                    minRows={1}
-                    maxRows={3}
-                  />
-                </Stack>
-              ) : (
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={selectedChoices.includes(choice)}
-                      onChange={() => {
-                        setSelectedChoices((prev) =>
-                          prev.includes(choice)
-                            ? prev.filter((c) => c !== choice)
-                            : [...prev, choice]
-                        )
-                      }}
-                    />
-                  }
-                  label={
-                    <Typography
-                      onClick={() => {
-                        setEditingChoiceIndex(index)
-                        setEditingChoiceValue(choice)
-                      }}
-                      sx={{ cursor: "pointer", alignSelf: "center" }}
-                    >
-                      {choice}
-                    </Typography>
-                  }
-                  sx={{
-                    flex: 1,
-                    alignItems: "center",
-                    margin: 0,
-                    "& .MuiFormControlLabel-label": {
-                      wordBreak: "break-word",
-                      paddingRight: 1,
-                    },
-                  }}
+        {choices.map((choice, index) => (
+          <Box key={index} sx={{ display: "flex", alignItems: "center", mb: 0 }}>
+            {editingChoiceIndex === index ? (
+              <Stack direction="row" spacing={1} alignItems="center" sx={{ flex: 1 }}>
+                <Checkbox checked={answers.includes(choice)} disabled />
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  value={editingChoiceValue}
+                  onChange={(e) => setEditingChoiceValue(e.target.value)}
+                  onBlur={saveChoice}
+                  autoFocus
+                  size="small"
+                  multiline
+                  minRows={1}
+                  maxRows={3}
                 />
-              )}
-
-              {editingChoiceIndex !== index && (
-                <Box sx={{ display: "flex", mt: 0.5 }}>
-                  <ConfirmationDialog
-                    onConfirm={() => deleteChoice(index)}
-                    title="Delete Choice"
-                    description="Are you sure you want to delete this choice? This action cannot be undone."
-                    trigger={
-                      <IconButton size="small" aria-label="Delete choice" color="error">
-                        <DeleteIcon sx={{ color: "#c95151" }} fontSize="small" />
-                      </IconButton>
-                    }
+              </Stack>
+            ) : (
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={answers.includes(choice)}
+                    onChange={() => handleCheckboxChange(choice)}
                   />
-                </Box>
-              )}
-            </Box>
-          ))}
-        </Box>
+                }
+                label={
+                  <Typography
+                    onClick={() => {
+                      setEditingChoiceIndex(index)
+                      setEditingChoiceValue(choice)
+                    }}
+                    sx={{ cursor: "pointer" }}
+                  >
+                    {choice}
+                  </Typography>
+                }
+                sx={{
+                  flex: 1,
+                  alignItems: "center",
+                  margin: 0,
+                  "& .MuiFormControlLabel-label": {
+                    wordBreak: "break-word",
+                    paddingRight: 1,
+                  },
+                }}
+              />
+            )}
+
+            {editingChoiceIndex !== index && (
+              <ConfirmationDialog
+                onConfirm={() => deleteChoice(index)}
+                title="Delete Choice"
+                description="Are you sure you want to delete this choice? This action cannot be undone."
+                trigger={
+                  <IconButton size="small" aria-label="Delete choice" color="error">
+                    <DeleteIcon sx={{ color: "#c95151" }} fontSize="small" />
+                  </IconButton>
+                }
+              />
+            )}
+          </Box>
+        ))}
       </Box>
     </div>
   )
