@@ -16,9 +16,9 @@ import FRQResult from "./Student-Screens/FRQResult.tsx";
 import Edit from "./Teacher-Screens/Edit.tsx";
 import Session from "./Teacher-Screens/Session.tsx";
 import FRQFeedback from "./Student-Screens/FRQFeedback";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
-import firebaseApp from './firebaseConfig'; // Make sure to set up this file
-import { db } from "../firebase";
+// import { getFirestore, collection, getDocs } from "firebase/firestore";
+// import firebaseApp from './firebaseConfig'; // Make sure to set up this file
+// import { db } from "../firebase";
 
 import "./index.css";
 
