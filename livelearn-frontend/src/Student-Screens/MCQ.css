@@ -20,15 +20,16 @@ html, body {
 .main-container {
   display: flex;
   justify-content: flex-start; /* Center horizontally */
-  padding-top: 1.75rem;
-  padding-bottom: 1.75rem;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
   flex-direction: column;
   align-items: center; /* Center vertically */
   height: auto; /* Take full screen height minus header */
   background-color: #767474;
   border-radius: 1rem;
-  margin-right: 325px;
-  margin-left: 325px;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
   gap: 0.5rem;
 }
 

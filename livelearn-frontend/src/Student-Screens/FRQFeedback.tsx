@@ -23,44 +23,46 @@ const FRQFeedback: React.FC<FRQFeedbackProps> = ({ question, onNext }) => {
   );
 
   return (
-    <div className="mcontainer">
+    <>
       <Header />
-      <div className={`main-container ${question.image ? "has-image" : "no-image"}`}>
-        <div className="frq-question-box">
-          <p className="question-text">{question.question}</p>
-        </div>
-
-        {question.image && (
-          <div className="image-box">
-            <img
-              src={question.image}
-              alt="Question visual"
-              className="question-image"
-            />
+      <div className="mcontainer">
+        <div className={`main-container ${question.image ? "has-image" : "no-image"}`}>
+          <div className="frq-question-box">
+            <p className="question-text">{question.question}</p>
           </div>
-        )}
 
-        <div className="frq-input-box">
-            <div className="frq-feedback-boxes">
-            <div className={`frq-feedback-answer-box ${isCorrect ? "frq-correct" : "frq-incorrect"}`}>
-                {userAnswer}
+          {question.image && (
+            <div className="image-box">
+              <img
+                src={question.image}
+                alt="Question visual"
+                className="question-image"
+              />
             </div>
+          )}
 
-            {!isCorrect && (
-                <div className="frq-correct-answer-box">
-                    <strong>Correct Answer{question.acceptedAnswers.length > 1 ? "s" : ""}:</strong> {question.acceptedAnswers.join(", ")}
-                </div>
-            )}
-            </div>
-        </div>  
+          <div className="frq-input-box">
+              <div className="frq-feedback-boxes">
+              <div className={`frq-feedback-answer-box ${isCorrect ? "frq-correct" : "frq-incorrect"}`}>
+                  {userAnswer}
+              </div>
 
+              {!isCorrect && (
+                  <div className="frq-correct-answer-box">
+                      <strong>Correct Answer{question.acceptedAnswers.length > 1 ? "s" : ""}:</strong> {question.acceptedAnswers.join(", ")}
+                  </div>
+              )}
+              </div>
+          </div>  
+
+        </div>
+          <div className="button-row-bottom">
+            <button className="next-btn" onClick={onNext}>
+              Next Question
+            </button>
+          </div>      
       </div>
-        <div className="button-row-bottom">
-          <button className="next-btn" onClick={onNext}>
-            Next Question
-          </button>
-        </div>      
-    </div>
+    </>
   );
 };
 
