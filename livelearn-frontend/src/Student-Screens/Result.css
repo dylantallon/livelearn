@@ -28,8 +28,9 @@ html, body {
     height: auto; /* Take full screen height minus header */
     background-color: #767474;
     border-radius: 1rem;
-    margin-right: 325px;
-    margin-left: 325px;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
     gap: 0.5rem;
   }
   
