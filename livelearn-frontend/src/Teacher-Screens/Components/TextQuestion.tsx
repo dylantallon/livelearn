@@ -256,7 +256,7 @@ export default function TextQuestion({
         <TextField
           fullWidth
           variant="outlined"
-          placeholder="Type your answer here"
+          placeholder="Type the answer here and press enter to save"
           value={answer}
           onChange={(e) => setAnswer(e.target.value)}
           onKeyDown={handleAnswerKeyDown}

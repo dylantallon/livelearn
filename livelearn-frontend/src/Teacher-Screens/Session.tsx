@@ -35,6 +35,7 @@ export default function Session() {
 
   const [questions, setQuestions] = useState<Question[]>([])
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
+  const [answerShown, setAnswerShown] = useState(false)
 
   useEffect(() => {
     const fetchPoll = async () => {
@@ -87,7 +88,7 @@ export default function Session() {
             </Typography>
             <div className="session-nav-buttons">
               <button
-                onClick={goToPreviousQuestion}
+                onClick={ () => {goToPreviousQuestion(); setAnswerShown(false);}}
                 disabled={currentQuestionIndex === 0}
                 className="nav-button"
               >
@@ -96,7 +97,7 @@ export default function Session() {
               </button>
 
               <button
-                onClick={goToNextQuestion}
+                onClick={ () => {goToNextQuestion(); setAnswerShown(false);}}
                 disabled={currentQuestionIndex === questions.length - 1}
                 className="nav-button"
               >
@@ -143,8 +144,8 @@ export default function Session() {
               <div className="answered-div">
                 3/100 Answered
               </div>
-              <button className="answer-button">
-                Show Answer
+              <button className="answer-button" onClick={() => setAnswerShown(prev => !prev)}>
+                {answerShown ? "Hide Answer" : "Show Answer"}
               </button>
             </div>
             <div className="session-right-buttons">
