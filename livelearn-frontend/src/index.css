@@ -31,8 +31,8 @@ button {
   cursor: pointer;
 }
 
-button:hover {
-  filter: brightness(1.2)
+button:hover:not(:disabled) {
+  filter: brightness(1.2);
 }
 
 * {

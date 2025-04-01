@@ -91,8 +91,15 @@ function Poll() {
   };
 
   const handleScoreClick = () => navigate('/scores');
+
   const handleEditClick = (poll: Poll) => {
     navigate('/edit', { state: { pollId: poll.id } });
+  };
+
+  const handleStartSession = () => {
+    if (selectedPollId) {
+      navigate('/session', { state: { pollId: selectedPollId } });
+    }
   };
 
   const handleRowClick = (id: string, event?: React.MouseEvent<HTMLDivElement>) => {
@@ -134,7 +141,9 @@ function Poll() {
             <button onClick={handleAddPoll} className="btn-new-survey">
               <AddIcon fontSize='inherit' /> New Poll
             </button>
-            <button className="btn-start-session">Start Session</button>
+            <button onClick={handleStartSession} disabled={selectedPollId === null} className="btn-start-session">
+              Start Session
+            </button>
           </div>
         </div>
         {polls.length > 0 ? (

@@ -14,6 +14,7 @@ import LoadingScreen from "./Student-Screens/LoadingScreen.tsx";
 import FinalScreen from "./Student-Screens/FinalScreen.tsx";
 import FRQResult from "./Student-Screens/FRQResult.tsx";
 import Edit from "./Teacher-Screens/Edit.tsx";
+import Session from "./Teacher-Screens/Session.tsx";
 import FRQFeedback from "./Student-Screens/FRQFeedback";
 import "./index.css";
 
@@ -82,6 +83,7 @@ const App = () => {
         <Route path="/poll" element={<Poll />} />
         <Route path="/scores" element={<Score />} />
         <Route path="/edit" element={<Edit />} />
+        <Route path="/session" element={<Session />} />
         <Route path="/loading" element={<LoadingScreen />} />
         <Route
           path="/FRQResult"

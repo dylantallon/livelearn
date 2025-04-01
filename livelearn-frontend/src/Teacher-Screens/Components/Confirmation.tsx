@@ -63,7 +63,7 @@ export const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
             Cancel
           </Button>
           <Button onClick={handleConfirm} sx={{color:"#c95151"}} autoFocus>
-            Delete
+            {title === "End Session" ? "End" : "Delete"}
           </Button>
         </DialogActions>
       </Dialog>
