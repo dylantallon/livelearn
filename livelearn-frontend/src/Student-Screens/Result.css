@@ -28,6 +28,7 @@ html, body {
     height: auto; /* Take full screen height minus header */
     background-color: #767474;
     border-radius: 1rem;
+    width: 100%;
     max-width: 900px;
     margin: 0 auto;
     padding: 20px;
@@ -77,7 +78,7 @@ html, body {
       display: flex;
       width: 100%;
       max-width: 800px;              /* 🔥 Full screen width */
-      height: 10%;
+      height: auto;
       box-sizing: border-box;    /* include padding in width */
       margin: 0 0.2rem;
     }

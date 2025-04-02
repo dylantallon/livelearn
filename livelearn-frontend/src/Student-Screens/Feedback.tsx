@@ -1,7 +1,7 @@
 import React from "react";
-import { useLocation } from "react-router-dom";
 import "./Result.css"; // Reusing your styled choice boxes
 import Header from "../Components/Header";
+import "./Result.css";
 
 interface FeedbackProps {
   question: {
@@ -9,15 +9,12 @@ interface FeedbackProps {
     options: string[];
     image?: string;
   };
+  userAnswer: string;
+  correctAnswer: string;
   onNext: () => void;
 }
 
-const Feedback: React.FC<FeedbackProps> = ({ question, onNext }) => {
-  const location = useLocation();
-  const params = new URLSearchParams(location.search);
-
-  const userAnswer = params.get("answer") || "";
-  const correctAnswer = params.get("correctAnswer") || "";
+const Feedback: React.FC<FeedbackProps> = ({ question, userAnswer, correctAnswer, onNext }) => {
   const hasImage = !!question.image;
 
   return (
@@ -55,14 +52,13 @@ const Feedback: React.FC<FeedbackProps> = ({ question, onNext }) => {
             );
           })}
         </div>
-
-
       </div>
-        <div className="button-row-bottom">
-          <button className="next-btn" onClick={onNext}>
-            Next Question
-          </button>
-        </div>      
+
+      <div className="button-row-bottom">
+        <button className="next-btn" onClick={onNext}>
+          Next Question
+        </button>
+      </div>
     </div>
   );
 };

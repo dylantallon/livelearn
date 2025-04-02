@@ -1,8 +1,6 @@
-
-
 import React, { useState, useEffect } from "react";
 import Header from "../Components/Header";
-import "./FRQ.css"; // ✅ reuse same styles for layout & buttons
+import "./FRQ.css";
 
 interface FRQProps {
   question: {
@@ -11,16 +9,27 @@ interface FRQProps {
     image?: string;
   };
   onSubmit: (answer: string) => void;
+  onShowAnswer: () => void;
+  onNext: () => void;
 }
 
-const FRQ: React.FC<FRQProps> = ({ question, onSubmit }) => {
+const FRQ: React.FC<FRQProps> = ({ question, onSubmit, onShowAnswer,onNext }) => {
   const hasImage = !!question.image;
   const [input, setInput] = useState("");
+  const [submitted, setSubmitted] = useState(false);
 
-  // Clear input when question changes
+  // Reset input and submission state on question change
   useEffect(() => {
     setInput("");
+    setSubmitted(false);
   }, [question]);
+
+  const handleSubmit = () => {
+    if (input.trim()) {
+      onSubmit(input.trim());
+      setSubmitted(true);
+    }
+  };
 
   return (
     <div className="mcontainer">
@@ -48,20 +57,30 @@ const FRQ: React.FC<FRQProps> = ({ question, onSubmit }) => {
             onChange={(e) => setInput(e.target.value)}
           />
         </div>
-
       </div>
-              <div className="button-row-bottom">
+
+      <div className="button-row-bottom">
+        {!submitted ? (
           <button
             className="next-btn"
-            onClick={() => onSubmit(input.trim())}
+            onClick={handleSubmit}
             disabled={!input.trim()}
           >
             Submit
           </button>
-        </div>
+        ) : (
+          <>
+            <button className="next-btn" onClick={onShowAnswer}>
+              Show Answer
+            </button>
+            <button className="next-btn" onClick={onNext}>
+              Next Question
+            </button>
+          </>
+        )}
+      </div>
     </div>
   );
 };
 
 export default FRQ;
-
