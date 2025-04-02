@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState,useEffect } from "react";
 import "./MCQ.css"; 
 import Header from "../Components/Header";
 
@@ -10,11 +10,15 @@ interface MCQProps {
 
 const MCQ: React.FC<MCQProps> = ({ question, onAnswer }) => {
   const hasImage =  !!question.image;
+  const [selected, setSelected] = useState<string>("");
+
+  useEffect(() => {
+    setSelected("");
+  }, [question]);
 
  return (
-  <>
-  <Header />
     <div className="mcontainer">
+      <Header />
       <div className={`main-container ${hasImage ? "has-image" : "no-image"}`}>
         <div className="question-box">
           <p className="question-text">{question.question}</p>
@@ -32,14 +36,27 @@ const MCQ: React.FC<MCQProps> = ({ question, onAnswer }) => {
 
         <div className="choices-box">
           {question.options.map((option, index) => (
-            <div key={index} className="choice" onClick={() => onAnswer(option)}>
-              {option}
-            </div>
+            <div
+            key={index}
+            className={`choice ${selected === option ? "result-selected-answer" : ""}`}
+            onClick={() => setSelected(option)}
+          >
+            {option}
+          </div>
           ))}
+        </div>
+
+        <div className="button-row-bottom">
+        <button
+          className="next-btn"
+          onClick={() => onAnswer(selected)}
+          disabled={!selected}
+           >
+          Submit
+        </button>
         </div>
       </div>
     </div>
-    </>
   );
 };
 

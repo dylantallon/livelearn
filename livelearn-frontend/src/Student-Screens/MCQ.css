@@ -98,7 +98,7 @@ html, body {
   width: 100%;
   cursor: pointer;
   display: flex;
-  transition: 0.3s;
+  transition: 0.1s;
   user-select: none;
 }
 

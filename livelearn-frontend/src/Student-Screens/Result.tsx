@@ -81,12 +81,11 @@ import Header from "../Components/Header";
 interface ResultProps {
   question: { question: string; options: string[]; image?: string };
   userAnswer: string;
-  correctAnswer: string;
   onShowAnswer: () => void;
   onNext: () => void;
 }
 
-const Result: React.FC<ResultProps> = ({ question, userAnswer, correctAnswer, onShowAnswer, onNext }) => {
+const Result: React.FC<ResultProps> = ({ question, userAnswer, onShowAnswer, onNext }) => {
   const hasImage = !!question.image;
 
   return (

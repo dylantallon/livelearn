@@ -57,29 +57,29 @@ const FRQ: React.FC<FRQProps> = ({ question, onSubmit, onShowAnswer,onNext }) =>
             onChange={(e) => setInput(e.target.value)}
           />
         </div>
+          <div className="button-row-bottom">
+            {!submitted ? (
+              <button
+                className="next-btn"
+                onClick={handleSubmit}
+                disabled={!input.trim()}
+              >
+                Submit
+              </button>
+            ) : (
+              <>
+                <button className="next-btn" onClick={onShowAnswer}>
+                  Show Answer
+                </button>
+                <button className="next-btn" onClick={onNext}>
+                  Next Question
+                </button>
+              </>
+            )}
+          </div>
+        </div>
       </div>
 
-      <div className="button-row-bottom">
-        {!submitted ? (
-          <button
-            className="next-btn"
-            onClick={handleSubmit}
-            disabled={!input.trim()}
-          >
-            Submit
-          </button>
-        ) : (
-          <>
-            <button className="next-btn" onClick={onShowAnswer}>
-              Show Answer
-            </button>
-            <button className="next-btn" onClick={onNext}>
-              Next Question
-            </button>
-          </>
-        )}
-      </div>
-    </div>
   );
 };
 

@@ -125,7 +125,7 @@ html, body {
     width: 100%;
     cursor: pointer;
     display: flex;
-    transition: 0.3s;
+    transition: 0.1s;
     user-select: none;
   }
   
@@ -165,7 +165,6 @@ html, body {
     display: flex;
     justify-content: center;
     gap: 1.5rem;
-    padding-top: 2rem;
   }
   
   .next-btn {
@@ -178,6 +177,7 @@ html, body {
     font-size: 1.1rem;
     font-weight: bold;
     border: none;
+    width: 300px;
     padding: 0.8rem 2rem;
     border-radius: 8px;
     cursor: pointer;
