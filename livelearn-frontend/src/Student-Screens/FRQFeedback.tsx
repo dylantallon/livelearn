@@ -10,14 +10,11 @@ interface FRQFeedbackProps {
     acceptedAnswers: string[];
     image?: string;
   };
+  userAnswer: string;
   onNext: () => void;
 }
 
-const FRQFeedback: React.FC<FRQFeedbackProps> = ({ question, onNext }) => {
-  const location = useLocation();
-  const params = new URLSearchParams(location.search);
-  const userAnswer = params.get("answer") || "";
-
+const FRQFeedback: React.FC<FRQFeedbackProps> = ({ question, userAnswer, onNext }) => {
   const isCorrect = question.acceptedAnswers.some(
     (ans) => ans.trim().toLowerCase() === userAnswer.trim().toLowerCase()
   );
@@ -42,25 +39,25 @@ const FRQFeedback: React.FC<FRQFeedbackProps> = ({ question, onNext }) => {
           )}
 
           <div className="frq-input-box">
-              <div className="frq-feedback-boxes">
+            <div className="frq-feedback-boxes">
               <div className={`frq-feedback-answer-box ${isCorrect ? "frq-correct" : "frq-incorrect"}`}>
-                  {userAnswer}
+                {userAnswer}
               </div>
 
               {!isCorrect && (
-                  <div className="frq-correct-answer-box">
-                      <strong>Correct Answer{question.acceptedAnswers.length > 1 ? "s" : ""}:</strong> {question.acceptedAnswers.join(", ")}
-                  </div>
+                <div className="frq-correct-answer-box">
+                  <strong>Correct Answer{question.acceptedAnswers.length > 1 ? "s" : ""}:</strong> {question.acceptedAnswers.join(", ")}
+                </div>
               )}
-              </div>
-          </div>  
-
+            </div>
+          </div>
         </div>
-          <div className="button-row-bottom">
-            <button className="next-btn" onClick={onNext}>
-              Next Question
-            </button>
-          </div>      
+
+        <div className="button-row-bottom">
+          <button className="next-btn" onClick={onNext}>
+            Next Question
+          </button>
+        </div>
       </div>
     </>
   );

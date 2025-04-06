@@ -18,6 +18,7 @@
 .subtitle {
   font-size: 1.2rem;
   color: #000000;
+  font-weight: 600;
   margin-bottom: 0rem;
   flex: 1;
 }
@@ -137,11 +138,23 @@ button {
   align-items: center;
   gap: 2px;
   color: white;
+  border: solid 2px transparent;
 }
 
 .btn-start-session {
   background-color: #007bff;
   color: #fff;
+  box-sizing: border-box;
+  border: solid 2px transparent;
+}
+.btn-start-session:disabled {
+  cursor: not-allowed;
+}
+
+.btn-start-session:disabled:hover {
+  border: 2px solid #c95151;
+  filter: brightness(1.2);
+  cursor: not-allowed; 
 }
 
 .empty-poll-state {

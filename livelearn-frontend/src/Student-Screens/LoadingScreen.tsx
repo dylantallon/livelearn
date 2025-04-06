@@ -8,7 +8,7 @@ const LoadingScreen: React.FC = () => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      navigate("/MCQ"); // Redirects to another page after 10s
+      navigate("/quiz"); // Redirects to another page after 10s
     }, 2500);
 
     return () => clearTimeout(timer);

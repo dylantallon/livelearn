@@ -2,8 +2,8 @@
 html, body {
   margin: 0;
   padding: 0;
-  overflow: hidden;
   height: 100%;
+  overflow: hidden; /* block global scrolling */
 }
 
 /* Ensure the container takes up the entire screen */
@@ -22,6 +22,7 @@ html, body {
   justify-content: flex-start; /* Center horizontally */
   padding-top: 2rem;
   padding-bottom: 2rem;
+  width: 100%;
   flex-direction: column;
   align-items: center; /* Center vertically */
   height: auto; /* Take full screen height minus header */
@@ -31,6 +32,10 @@ html, body {
   margin: 0 auto;
   padding: 20px;
   gap: 0.5rem;
+  max-height: calc(100vh - 80px); /* fits in screen */
+  overflow-y: auto;               /* ✅ only scroll if content is tall */
+  overflow-x: hidden;
+
 }
 
 /* Question and Choices should be centered */
@@ -65,7 +70,8 @@ html, body {
     display: flex;
     width: 100%;
     max-width: 800px;              /* 🔥 Full screen width */
-    height: 10%;
+    height: auto;
+    max-height: 500px;
     box-sizing: border-box;    /* include padding in width */
     margin: 0 0.2rem;
   }
@@ -92,7 +98,7 @@ html, body {
   width: 100%;
   cursor: pointer;
   display: flex;
-  transition: 0.3s;
+  transition: 0.1s;
   user-select: none;
 }
 
@@ -117,15 +123,17 @@ html, body {
   width: 100%;
   max-width: 800px;     
   margin: 1rem 0;
-  height: auto;
+  max-height: 350px;
   overflow: hidden; /* ✅ prevents overflow */
 }
 
 .question-image {
   width: 100%;
-  height: auto;              
+  height: 100%;              
   box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.15);
-  object-fit:cover;  
+  object-fit: contain;
+  display: block;
+  border-radius: 12px;       /* ✅ adds nice curves */           /* ✅ creates space inside box */
 }
 
 /* .selected-answer {

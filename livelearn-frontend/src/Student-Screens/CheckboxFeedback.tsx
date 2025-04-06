@@ -1,20 +1,14 @@
 import React from "react";
-import "./Result.css"; // Reusing your styled choice boxes
 import Header from "../Components/Header";
 import "./Result.css";
 
-interface FeedbackProps {
-  question: {
-    question: string;
-    options: string[];
-    image?: string;
-  };
-  userAnswer: string;
-  correctAnswer: string;
+interface CheckboxFeedbackProps {
+  question: { question: string; options: string[]; image?: string; answers: string[] };
+  userAnswer: string[];
   onNext: () => void;
 }
 
-const Feedback: React.FC<FeedbackProps> = ({ question, userAnswer, correctAnswer, onNext }) => {
+const CheckboxFeedback: React.FC<CheckboxFeedbackProps> = ({ question, userAnswer, onNext }) => {
   const hasImage = !!question.image;
 
   return (
@@ -27,23 +21,19 @@ const Feedback: React.FC<FeedbackProps> = ({ question, userAnswer, correctAnswer
 
         {hasImage && (
           <div className="result-image-box">
-            <img
-              src={question.image}
-              alt="Question visual"
-              className="result-question-image"
-            />
+            <img src={question.image} alt="Question visual" className="result-question-image" />
           </div>
         )}
 
         <div className="result-choices-box">
           {question.options.map((option, index) => {
-            let className = "result-choice";
+            const isCorrect = question.answers.includes(option);
+            const isSelected = userAnswer.includes(option);
 
-            if (option === correctAnswer) {
-              className += " correct-answer";
-            } else if (option === userAnswer && userAnswer !== correctAnswer) {
-              className += " incorrect-answer";
-            }
+            let className = "result-choice";
+            if (isCorrect && isSelected) className += " correct-answer";
+            else if (!isCorrect && isSelected) className += " incorrect-answer";
+            else if (isCorrect) className += " correct-answer";
 
             return (
               <div key={index} className={className}>
@@ -63,4 +53,4 @@ const Feedback: React.FC<FeedbackProps> = ({ question, userAnswer, correctAnswer
   );
 };
 
-export default Feedback;
+export default CheckboxFeedback;

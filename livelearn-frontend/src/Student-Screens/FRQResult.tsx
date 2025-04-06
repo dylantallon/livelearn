@@ -1,25 +1,16 @@
 import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 import Header from "../Components/Header";
 import "./FRQ.css";
 
 interface FRQResultProps {
-  question: {
-    question: string;
-    acceptedAnswers: string[];
-    image?: string;
-  };
+  question: { question: string; acceptedAnswers: string[]; image?: string };
+  userAnswer: string;
   onNext: () => void;
+  onShowAnswer: () => void; // ✅ Add this
 }
 
-const FRQResult: React.FC<FRQResultProps> = ({ question, onNext }) => {
+const FRQResult: React.FC<FRQResultProps> = ({ question, userAnswer, onNext, onShowAnswer }) => {
   const hasImage = !!question.image;
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  const params = new URLSearchParams(location.search);
-  const userAnswer = params.get("answer") || "";
-  const questionIndex = params.get("questionIndex") || "0";
 
   return (
     <div className="mcontainer">
@@ -42,21 +33,16 @@ const FRQResult: React.FC<FRQResultProps> = ({ question, onNext }) => {
         <div className="frq-input-box">
           <div className="frq-result-answer-box">{userAnswer}</div>
         </div>
-
       </div>
-       <div className="button-row-bottom">
-        <button
-            className="next-btn"
-            onClick={() =>
-                navigate(`/FeedBackFRQ?answer=${encodeURIComponent(userAnswer)}&questionIndex=${questionIndex}`)
-            }
-            >
-            Show Answer
+
+      <div className="button-row-bottom">
+        <button className="next-btn" onClick={onShowAnswer}>
+          Show Answer
         </button>
-          <button className="next-btn" onClick={onNext}>
-            Next Question
-          </button>
-        </div>
+        <button className="next-btn" onClick={onNext}>
+          Next Question
+        </button>
+      </div>
     </div>
   );
 };

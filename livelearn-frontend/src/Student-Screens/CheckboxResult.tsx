@@ -1,20 +1,15 @@
 import React from "react";
-import "./Result.css"; // Reusing your styled choice boxes
 import Header from "../Components/Header";
 import "./Result.css";
 
-interface FeedbackProps {
-  question: {
-    question: string;
-    options: string[];
-    image?: string;
-  };
-  userAnswer: string;
-  correctAnswer: string;
+interface CheckboxResultProps {
+  question: { question: string; options: string[]; image?: string };
+  userAnswer: string[];
+  onShowAnswer: () => void;
   onNext: () => void;
 }
 
-const Feedback: React.FC<FeedbackProps> = ({ question, userAnswer, correctAnswer, onNext }) => {
+const CheckboxResult: React.FC<CheckboxResultProps> = ({ question, userAnswer, onShowAnswer, onNext }) => {
   const hasImage = !!question.image;
 
   return (
@@ -27,24 +22,14 @@ const Feedback: React.FC<FeedbackProps> = ({ question, userAnswer, correctAnswer
 
         {hasImage && (
           <div className="result-image-box">
-            <img
-              src={question.image}
-              alt="Question visual"
-              className="result-question-image"
-            />
+            <img src={question.image} alt="Question visual" className="result-question-image" />
           </div>
         )}
 
         <div className="result-choices-box">
           {question.options.map((option, index) => {
-            let className = "result-choice";
-
-            if (option === correctAnswer) {
-              className += " correct-answer";
-            } else if (option === userAnswer && userAnswer !== correctAnswer) {
-              className += " incorrect-answer";
-            }
-
+            const isSelected = userAnswer.includes(option);
+            const className = isSelected ? "result-choice result-selected-answer" : "result-choice";
             return (
               <div key={index} className={className}>
                 {option}
@@ -54,7 +39,10 @@ const Feedback: React.FC<FeedbackProps> = ({ question, userAnswer, correctAnswer
         </div>
       </div>
 
-      <div className="button-row-bottom">
+      <div className="result-button-row">
+        <button className="next-btn" onClick={onShowAnswer}>
+          Show Answer
+        </button>
         <button className="next-btn" onClick={onNext}>
           Next Question
         </button>
@@ -63,4 +51,4 @@ const Feedback: React.FC<FeedbackProps> = ({ question, userAnswer, correctAnswer
   );
 };
 
-export default Feedback;
+export default CheckboxResult;

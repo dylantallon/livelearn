@@ -84,7 +84,7 @@ function Edit() {
       choices: type === "text" ? [] : ["Choice 1", "Choice 2", "Choice 3"],
       images: [],
       points: 1,
-      answers: [], // ✅ always include answers
+      answers: [],
     }
 
     const updatedQuestions = [...questions, newQuestion]
@@ -252,6 +252,7 @@ function Edit() {
               <Box mb={0} sx={{ display: "flex", alignItems: "flex-start" }}>
                 <Typography
                   variant="h5"
+                  fontWeight="bold"
                   sx={{
                     flex: 1,
                     wordBreak: "break-word",
