@@ -12,8 +12,9 @@ import {
   getInstructorRoles,
   getAssistantRoles,
   getObserverRoles,
+  getCanvasId,
 } from "../utils/LtiUtils";
-import {livelearnDomain, redirectUri} from "../utils/constants";
+import {livelearnDomain, functionUrl} from "../utils/constants";
 import {requestAccessToken} from "../utils/TokenHandler";
 import RequestHandler from "../utils/RequestHandler";
 
@@ -46,6 +47,7 @@ class LtiController {
       });
 
       // Redirect to the Canvas auth URL to authorize the launch request
+      const redirectUri = `${functionUrl}/lti/launch`;
       const authUrl = "https://sso.canvaslms.com/api/lti/authorize_redirect";
       let params = `scope=openid&response_type=id_token&client_id=${client_id}&prompt=none`;
       params += `&redirect_uri=${redirectUri}&login_hint=${login_hint}&state=${paramsId}`;
@@ -121,8 +123,10 @@ class LtiController {
           createdAt: FieldValue.serverTimestamp(),
         });
 
-        const redirectUri = encodeURIComponent(`https://${livelearnDomain}/enableCourse`);
-        return requestHandler.sendRedirect(res, `${redirectUri}?state=${paramsId}`);
+        const canvasAuthUrl = `https://${api_domain}/login/oauth2/auth`;
+        const redirectUri = `${functionUrl}/lti/enableCourse`;
+        // eslint-disable-next-line max-len
+        return requestHandler.sendRedirect(res, `${canvasAuthUrl}?client_id=${data.clientID}&response_type=code&redirect_uri=${redirectUri}&state=${paramsId}`);
       }
 
       // Course exists, update course details
@@ -173,7 +177,7 @@ class LtiController {
         return requestHandler.sendClientError(req, res, "Missing required parameters", 400);
       }
 
-      // Generate instructor"s Canvas tokens for this course
+      // Generate instructor's Canvas tokens for this course
       const firstLetter = userId.search(/[A-Z]/i);
       const canvasURL = `${userId.substring(firstLetter)}.instructure.com`;
       const tokenResponse = await requestAccessToken(code, canvasURL);
@@ -183,14 +187,30 @@ class LtiController {
         return requestHandler.sendClientError(req, res, "Invalid LTI tokens", 400);
       }
 
+      // Create assignment categories for graded and participation polls
+      const params1 = "name=LiveLearn Graded Polls";
+      const response1 = await requestHandler.sendCanvasRequest(
+        "POST", canvasURL,
+        `/api/v1/courses/${getCanvasId(courseId)}/group_categories?${params1}`,
+        userId, true,
+      );
+      const params2 = "name=LiveLearn Participation Polls";
+      const response2 = await requestHandler.sendCanvasRequest(
+        "POST", canvasURL,
+        `/api/v1/courses/${getCanvasId(courseId)}/group_categories?${params2}`,
+        userId, true,
+      );
+
       // Create course on Firebase
       const courseRef = db.collection("courses").doc(courseId);
       await courseRef.set({
         courseId: courseId,
         courseName: courseName,
-        token: token,
+        accessToken: token,
         refreshToken: refreshToken,
         updatedAt: FieldValue.serverTimestamp(),
+        gradedCategory: response1.id,
+        participationCategory: response2.id,
       });
       await paramsRef.delete();
 

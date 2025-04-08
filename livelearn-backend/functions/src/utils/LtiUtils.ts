@@ -62,10 +62,22 @@ async function getClientIdAndSecret(domain: string) {
   };
 }
 
+/**
+ * Converts course ID to Canvas course ID.
+ *
+ * @param {string} courseId The course ID
+ * @return {string} The canvas course ID.
+ */
+function getCanvasId(courseId: string) {
+  const firstLetter = courseId.search(/[A-Z]/i);
+  return courseId.substring(0, firstLetter);
+}
+
 export {
   getInstructorRoles,
   getAssistantRoles,
   getObserverRoles,
   getClientIdAndSecret,
+  getCanvasId,
 };
 
