@@ -22,17 +22,21 @@ import Header from "../Components/Header";
 const StudentScreen: React.FC = () => {
   const navigate = useNavigate();
 
-  const [questions, setQuestions] = useState<any[]>([]);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
   const [sessionStarted, setSessionStarted] = useState(false);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [stage, setStage] = useState<"question" | "result" | "feedback">("question");
   const [score, setScore] = useState(0);
-  const [userAnswers, setUserAnswers] = useState<(string | string[])[]>([]);
   const [lastUserAnswer, setLastUserAnswer] = useState<string | string[]>(``);
   const [lastCorrectAnswer, setLastCorrectAnswer] = useState<string>("");
 
   const previousQuestionIndex = useRef<number>(-1);
+
+  type Question =
+  | { type: "MCQ"; question: string; options: string[]; answer: string; image?: string; points: number }
+  | { type: "FRQ"; question: string; acceptedAnswers: string[]; image?: string; points: number }
+  | { type: "Checkbox"; question: string; options: string[]; answers: string[]; image?: string; points: number };
 
   useEffect(() => {
     const unsubscribe = onSnapshot(firestoreDoc(db, "session", "current"), async (docSnap) => {
@@ -52,7 +56,7 @@ const StudentScreen: React.FC = () => {
         if (!pollDocSnap.exists()) return;
 
         const pollData = pollDocSnap.data();
-        const parsed: any[] = [];
+        const parsed: Question[] = [];
 
         for (const q of pollData.questions) {
           if (q.type === "radio") {
@@ -167,8 +171,7 @@ const StudentScreen: React.FC = () => {
     if (isCorrect) {
       setScore((prev) => prev + current.points);
     }
-
-    setUserAnswers((prev) => [...prev, answer]);
+    
     setStage("result");
   };
 
