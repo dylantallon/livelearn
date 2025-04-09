@@ -14,6 +14,7 @@ import {
   addDoc,
   deleteDoc,
   doc,
+  setDoc,
   query,
   where
 } from "firebase/firestore";
@@ -96,9 +97,16 @@ function Poll() {
     navigate('/edit', { state: { pollId: poll.id } });
   };
 
-  const handleStartSession = () => {
+  const handleStartSession = async () => {
     if (selectedPollId) {
-      navigate('/session', { state: { pollId: selectedPollId } });
+      try {
+        await setDoc(doc(db, "session", "current"), {
+          pollId: selectedPollId
+        });
+        navigate('/session', { state: { pollId: selectedPollId } });
+      } catch (error) {
+        console.error("Error starting session:", error);
+      }
     }
   };
 
