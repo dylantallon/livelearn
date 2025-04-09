@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { db } from "../firebase";
 import {
   getDoc,
   doc as firestoreDoc,
-  onSnapshot
+  onSnapshot,
 } from "firebase/firestore";
 
 import "./LoadingScreen.css";
@@ -31,6 +31,8 @@ const StudentScreen: React.FC = () => {
   const [userAnswers, setUserAnswers] = useState<(string | string[])[]>([]);
   const [lastUserAnswer, setLastUserAnswer] = useState<string | string[]>(``);
   const [lastCorrectAnswer, setLastCorrectAnswer] = useState<string>("");
+
+  const previousQuestionIndex = useRef<number>(-1);
 
   useEffect(() => {
     const unsubscribe = onSnapshot(firestoreDoc(db, "session", "current"), async (docSnap) => {
@@ -86,28 +88,56 @@ const StudentScreen: React.FC = () => {
         setLoading(false);
         setQuestions((prev) => (prev.length === 0 ? parsed : prev));
 
-        // Question navigation
-        if (typeof data.questionIndex === "number" && data.questionIndex !== questionIndex) {
-          setQuestionIndex(data.questionIndex);
+        const currentIndex = data.questionIndex;
+
+        // Only reset if instructor changed the question
+        if (typeof currentIndex === "number" && currentIndex !== previousQuestionIndex.current) {
+          previousQuestionIndex.current = currentIndex;
+          setQuestionIndex(currentIndex);
           setStage("question");
           setLastUserAnswer("");
           setLastCorrectAnswer("");
+
           const container = document.querySelector(".main-container");
           if (container) container.scrollTop = 0;
         }
 
-        // Instructor shows/hides answer (force stage change regardless of submission)
+        // Sync to showAnswer flag from instructor
         if (typeof data.showAnswer === "boolean") {
-          setStage(data.showAnswer ? "feedback" : "question");
-        }
+          const current = parsed[data.questionIndex];
+          const noAnswer =
+            lastUserAnswer === "" ||
+            (Array.isArray(lastUserAnswer) && lastUserAnswer.length === 0);
 
+          if (data.showAnswer) {
+            // If user didn’t answer, set the correct answer
+            if (noAnswer) {
+              if (current.type === "MCQ") {
+                setLastCorrectAnswer(current.answer);
+                setLastUserAnswer("");
+              } else if (current.type === "FRQ") {
+                setLastCorrectAnswer(current.acceptedAnswers.join(", "));
+                setLastUserAnswer("");
+              } else if (current.type === "Checkbox") {
+                setLastCorrectAnswer(current.answers.join(", "));
+                setLastUserAnswer([]);
+              }
+            }
+            setStage("feedback");
+          } else {
+            // Only allow going back to "question" if the user hasn't submitted
+            if (noAnswer) {
+              setStage("question");
+            }
+          }
+        }
       } catch (error) {
         console.error("Failed to load questions:", error);
       }
     });
 
     return () => unsubscribe();
-  }, [navigate, questions, questionIndex, score, sessionStarted]);
+  }, [navigate, questions, score, sessionStarted, lastUserAnswer]);
 
   const handleAnswer = (answer: string | string[]) => {
     const current = questions[questionIndex];
@@ -120,29 +150,31 @@ const StudentScreen: React.FC = () => {
       setLastCorrectAnswer(current.answer);
     } else if (current.type === "FRQ") {
       const normalized = (answer as string).trim().toLowerCase();
-      isCorrect = current.acceptedAnswers.some((a: string) => a.trim().toLowerCase() === normalized);
+      isCorrect = current.acceptedAnswers.some(
+        (a: string) => a.trim().toLowerCase() === normalized
+      );
       setLastCorrectAnswer(current.acceptedAnswers.join(", "));
     } else if (current.type === "Checkbox") {
       const selected = answer as string[];
       const correctSet = new Set(current.answers.map((a: string) => a.toLowerCase()));
-      const normalizedSelected = selected.map(a => a.toLowerCase());
+      const normalizedSelected = selected.map((a) => a.toLowerCase());
       isCorrect =
         selected.length === correctSet.size &&
-        normalizedSelected.every(a => correctSet.has(a));
+        normalizedSelected.every((a) => correctSet.has(a));
       setLastCorrectAnswer(current.answers.join(", "));
     }
 
     if (isCorrect) {
-      setScore(prev => prev + current.points);
+      setScore((prev) => prev + current.points);
     }
 
-    setUserAnswers(prev => [...prev, answer]);
+    setUserAnswers((prev) => [...prev, answer]);
     setStage("result");
   };
 
   const handleNext = () => {
     if (questionIndex < questions.length - 1) {
-      setQuestionIndex(prev => prev + 1);
+      setQuestionIndex((prev) => prev + 1);
       setStage("question");
       setLastUserAnswer("");
       setLastCorrectAnswer("");
@@ -158,19 +190,32 @@ const StudentScreen: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={{ height: "100vh", backgroundColor: "#2f2b2b", display: "flex", flexDirection: "column" }}>
-        <Header />
-        <div style={{
-          flex: 1,
+      <div
+        style={{
+          height: "100vh",
+          backgroundColor: "#2f2b2b",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          color: "white",
-          fontSize: "1.5rem"
-        }}>
+        }}
+      >
+        <Header />
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            color: "white",
+            fontSize: "1.5rem",
+          }}
+        >
           <div className="spinner" />
-          {!sessionStarted && <div style={{ marginTop: "1rem" }}>Waiting for session to start...</div>}
+          {!sessionStarted && (
+            <div style={{ marginTop: "1rem" }}>
+              Waiting for session to start...
+            </div>
+          )}
         </div>
       </div>
     );
@@ -180,21 +225,77 @@ const StudentScreen: React.FC = () => {
   if (!currentQuestion) return <div>No question found.</div>;
 
   if (currentQuestion.type === "MCQ") {
-    if (stage === "question") return <MCQ question={currentQuestion} onAnswer={handleAnswer} />;
-    if (stage === "result") return <Result question={currentQuestion} userAnswer={lastUserAnswer as string} onShowAnswer={handleShowAnswer} onNext={handleNext} />;
-    if (stage === "feedback") return <Feedback question={currentQuestion} userAnswer={lastUserAnswer as string} correctAnswer={lastCorrectAnswer} onNext={handleNext} />;
+    if (stage === "question")
+      return <MCQ question={currentQuestion} onAnswer={handleAnswer} />;
+    if (stage === "result")
+      return (
+        <Result
+          question={currentQuestion}
+          userAnswer={lastUserAnswer as string}
+          onShowAnswer={handleShowAnswer}
+          onNext={handleNext}
+        />
+      );
+    if (stage === "feedback")
+      return (
+        <Feedback
+          question={currentQuestion}
+          userAnswer={lastUserAnswer as string}
+          correctAnswer={lastCorrectAnswer}
+          onNext={handleNext}
+        />
+      );
   }
 
   if (currentQuestion.type === "FRQ") {
-    if (stage === "question") return <FRQ question={currentQuestion} onSubmit={handleAnswer} onShowAnswer={handleShowAnswer} onNext={handleNext} />;
-    if (stage === "result") return <FRQResult question={currentQuestion} userAnswer={lastUserAnswer as string} onNext={handleNext} onShowAnswer={handleShowAnswer} />;
-    if (stage === "feedback") return <FRQFeedback question={currentQuestion} userAnswer={lastUserAnswer as string} onNext={handleNext} />;
+    if (stage === "question")
+      return (
+        <FRQ
+          question={currentQuestion}
+          onSubmit={handleAnswer}
+          onShowAnswer={handleShowAnswer}
+          onNext={handleNext}
+        />
+      );
+    if (stage === "result")
+      return (
+        <FRQResult
+          question={currentQuestion}
+          userAnswer={lastUserAnswer as string}
+          onNext={handleNext}
+          onShowAnswer={handleShowAnswer}
+        />
+      );
+    if (stage === "feedback")
+      return (
+        <FRQFeedback
+          question={currentQuestion}
+          userAnswer={lastUserAnswer as string}
+          onNext={handleNext}
+        />
+      );
   }
 
   if (currentQuestion.type === "Checkbox") {
-    if (stage === "question") return <Checkbox question={currentQuestion} onSubmit={handleAnswer} />;
-    if (stage === "result") return <CheckboxResult question={currentQuestion} userAnswer={lastUserAnswer as string[]} onShowAnswer={handleShowAnswer} onNext={handleNext} />;
-    if (stage === "feedback") return <CheckboxFeedback question={currentQuestion} userAnswer={lastUserAnswer as string[]} onNext={handleNext} />;
+    if (stage === "question")
+      return <Checkbox question={currentQuestion} onSubmit={handleAnswer} />;
+    if (stage === "result")
+      return (
+        <CheckboxResult
+          question={currentQuestion}
+          userAnswer={lastUserAnswer as string[]}
+          onShowAnswer={handleShowAnswer}
+          onNext={handleNext}
+        />
+      );
+    if (stage === "feedback")
+      return (
+        <CheckboxFeedback
+          question={currentQuestion}
+          userAnswer={lastUserAnswer as string[]}
+          onNext={handleNext}
+        />
+      );
   }
 
   return <div>Invalid question type.</div>;

@@ -9,7 +9,7 @@ interface ResultProps {
   onNext: () => void;
 }
 
-const Result: React.FC<ResultProps> = ({ question, userAnswer, onShowAnswer, onNext }) => {
+const Result: React.FC<ResultProps> = ({ question, userAnswer}) => {
   const hasImage = !!question.image;
 
   return (
@@ -46,14 +46,14 @@ const Result: React.FC<ResultProps> = ({ question, userAnswer, onShowAnswer, onN
         </div>
       </div>
 
-      <div className="result-button-row">
+      {/* <div className="result-button-row">
         <button className="next-btn" onClick={onShowAnswer}>
           Show Answer
         </button>
         <button className="next-btn" onClick={onNext}>
           Next Question
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };

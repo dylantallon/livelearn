@@ -9,7 +9,7 @@ interface FRQResultProps {
   onShowAnswer: () => void; // ✅ Add this
 }
 
-const FRQResult: React.FC<FRQResultProps> = ({ question, userAnswer, onNext, onShowAnswer }) => {
+const FRQResult: React.FC<FRQResultProps> = ({ question, userAnswer}) => {
   const hasImage = !!question.image;
 
   return (
@@ -35,14 +35,14 @@ const FRQResult: React.FC<FRQResultProps> = ({ question, userAnswer, onNext, onS
         </div>
       </div>
 
-      <div className="button-row-bottom">
+      {/* <div className="button-row-bottom">
         <button className="next-btn" onClick={onShowAnswer}>
           Show Answer
         </button>
         <button className="next-btn" onClick={onNext}>
           Next Question
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };
