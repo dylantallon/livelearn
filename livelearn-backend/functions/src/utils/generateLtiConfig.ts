@@ -34,6 +34,11 @@ function generateLtiConfigJson() {
       "alg": "RS256",
       "n": "u2bcgnTC3UO0v3P0tE9qIvH0kPZDATlRWrPZQnhPlxbDzNAaIcPbS6pKI_rcu1h6BfSqaH78sjiU_SUMXlGDA7vrteh0VsOm3zIUHw_Iigzy7y4wQU-ydxs0E-yFZmMx7epSD1yIX2eYwXbT-MSvb5oSOdBQHZ9Va041qgn9Sl0HODqjvVspN-V-VUyGlMo7RNKy66Ljt3zr_sCnzaO8Wvvukbf8hrgF7m6DyQZAcaQLrDnIVnIRPbyuC02J_cMCyqxqnSPOEh-qBVZh9cSAemsQjMFdKJFodfIKB5VxEFGrfxirj9fcojz6raBUsfLFJ_GnrqLNUjLLV9j3gVVarw",
     },
+    "custom_fields": {
+      "course_id": "$Canvas.course.id",
+      "user_id": "$Canvas.user.id",
+      "api_domain": "$Canvas.api.domain",
+    },
   };
 }
 

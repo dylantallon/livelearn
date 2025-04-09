@@ -5,6 +5,8 @@ import LtiController from "../controllers/ltiController";
 const ltiRouter = Router();
 const ltiController = new LtiController();
 
+ltiRouter.post("/initiation", (req, res) => ltiController.initiation(req, res));
+
 ltiRouter.post("/launch", (req, res) => ltiController.launch(req, res));
 
 ltiRouter.get("/config", (req, res) => ltiController.getLtiConfig(req, res));

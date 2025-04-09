@@ -57,7 +57,7 @@ async function refreshAccessToken(refreshToken: string, courseId: string, domain
 
   if (json.access_token) {
     const courseRef = db.collection("courses").doc(courseId);
-    await courseRef.update({token: json.access_token});
+    await courseRef.update({accessToken: json.access_token});
   }
   if (json.error) {
     throw new Error(json.error_description);

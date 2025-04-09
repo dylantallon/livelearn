@@ -3,6 +3,8 @@ import * as logger from "firebase-functions/logger";
 import {Request, Response} from "express";
 import {FieldValue} from "firebase-admin/firestore";
 import {getAuth} from "firebase-admin/auth";
+import {decode, verify} from "jsonwebtoken";
+import jwkToBuffer from "jwk-to-pem";
 
 import {db} from "../config/firebaseConfig";
 import {generateLtiConfigJson} from "../utils/generateLtiConfig";
@@ -10,52 +12,99 @@ import {
   getInstructorRoles,
   getAssistantRoles,
   getObserverRoles,
-  getClientIdAndSecret,
+  getCanvasId,
 } from "../utils/LtiUtils";
-import {livelearnDomain} from "../utils/constants";
+import {livelearnDomain, functionUrl} from "../utils/constants";
 import {requestAccessToken} from "../utils/TokenHandler";
 import RequestHandler from "../utils/RequestHandler";
 
 const requestHandler = new RequestHandler();
 
-class LtiController {
-  async launch(req: Request, res: Response) {
-    logger.log("LTI launch request received");
+interface canvasPayload {
+  "https://purl.imsglobal.org/spec/lti/claim/context": {
+    title: string,
+  }
+  "https://purl.imsglobal.org/spec/lti/claim/roles": string[],
+}
 
-    const {
-      custom_canvas_course_id,
-      custom_canvas_user_id,
-      custom_canvas_api_domain,
-      context_title,
-      roles,
-    } = req.body;
-    if (
-      !custom_canvas_course_id ||
-      !custom_canvas_user_id ||
-      !custom_canvas_api_domain ||
-      !context_title ||
-      !roles
-    ) {
+class LtiController {
+  async initiation(req: Request, res: Response) {
+    logger.log("LTI initiation request received");
+
+    const {iss, login_hint, target_link_uri, client_id, lti_message_hint} = req.body;
+    if (!iss || !login_hint || !target_link_uri || !client_id || !lti_message_hint) {
       return requestHandler.sendClientError(req, res, "Missing required LTI parameters", 400);
     }
 
     try {
-      const canvasURL = custom_canvas_api_domain;
-      const {clientId} = await getClientIdAndSecret(canvasURL);
-      const canvasDomain = canvasURL.substring(0, canvasURL.indexOf("."));
-      const userId = custom_canvas_user_id + canvasDomain;
-      const courseId = custom_canvas_course_id + canvasDomain;
+      // Create temporary document to verify state
+      const paramsId = crypto.randomUUID();
+      const paramsRef = db.collection("temp").doc(paramsId);
+      await paramsRef.set({
+        iss: iss,
+        clientID: client_id,
+        createdAt: FieldValue.serverTimestamp(),
+      });
+
+      // Redirect to the Canvas auth URL to authorize the launch request
+      const redirectUri = `${functionUrl}/lti/launch`;
+      const authUrl = "https://sso.canvaslms.com/api/lti/authorize_redirect";
+      let params = `scope=openid&response_type=id_token&client_id=${client_id}&prompt=none`;
+      params += `&redirect_uri=${redirectUri}&login_hint=${login_hint}&state=${paramsId}`;
+      params += `&response_mode=form_post&nonce=${paramsId}&lti_message_hint=${lti_message_hint}`;
+      return requestHandler.sendRedirect(res, `${authUrl}?${params}`);
+    }
+    catch (error) {
+      return requestHandler.sendServerError(req, res, error);
+    }
+  }
+
+  async launch(req: Request, res: Response) {
+    logger.log("LTI launch request received");
+
+    try {
+      // Verify state
+      const paramsDoc = await db.collection("temp").doc(req.body.state).get();
+      const data = paramsDoc.data();
+      if (!data || !data.iss || !data.clientID) {
+        return requestHandler.sendClientError(req, res, "Invalid LTI request", 400);
+      }
+      await paramsDoc.ref.delete();
+
+      // Fetch public JWK from Canvas to verify JWT
+      const decodedJWT = decode(req.body.id_token, {complete: true});
+      const response = await fetch("https://sso.canvaslms.com/api/lti/security/jwks");
+      const canvasJWK = await response.json();
+      const matchingKey = canvasJWK.keys.find((key: any) => key.kid === decodedJWT?.header.kid);
+      verify(req.body.id_token, jwkToBuffer(matchingKey), {
+        audience: data.clientID,
+        issuer: data.iss,
+      });
+
+      // Extract claims from payload
+      const payload = decodedJWT?.payload as canvasPayload;
+      const context_title = payload["https://purl.imsglobal.org/spec/lti/claim/context"].title;
+      const roles = payload["https://purl.imsglobal.org/spec/lti/claim/roles"];
+      const course_id = "206";
+      const user_id = "133";
+      const api_domain = "ufldev.instructure.com";
+      if (!course_id || !user_id || !api_domain || !context_title || !roles) {
+        return requestHandler.sendClientError(req, res, "Missing required LTI parameters", 400);
+      }
+
+      const canvasDomain = api_domain.substring(0, api_domain.indexOf("."));
+      const userId = user_id + canvasDomain;
+      const courseId = course_id + canvasDomain;
 
       // Check user's role
-      const rolesArray = roles.split(",");
       let role = "Learner";
-      if (getObserverRoles().some((role) => rolesArray.includes(role))) {
+      if (getObserverRoles().some((role) => roles.includes(role))) {
         return requestHandler.sendClientError(req, res, "User is not a student", 401);
       }
-      else if (getInstructorRoles().some((role) => rolesArray.includes(role))) {
+      else if (getInstructorRoles().some((role) => roles.includes(role))) {
         role = "Instructor";
       }
-      else if (getAssistantRoles().some((role) => rolesArray.includes(role))) {
+      else if (getAssistantRoles().some((role) => roles.includes(role))) {
         role = "Assistant";
       }
 
@@ -74,10 +123,10 @@ class LtiController {
           createdAt: FieldValue.serverTimestamp(),
         });
 
-        const canvasAuthUrl = `https://${custom_canvas_api_domain}/login/oauth2/auth`;
-        const redirectUri = encodeURIComponent(`https://${livelearnDomain}/enableCourse`);
+        const canvasAuthUrl = `https://${api_domain}/login/oauth2/auth`;
+        const redirectUri = `${functionUrl}/lti/enableCourse`;
         // eslint-disable-next-line max-len
-        return requestHandler.sendRedirect(res, `${canvasAuthUrl}?client_id=${clientId}&response_type=code&redirect_uri=${redirectUri}&state=${paramsId}`);
+        return requestHandler.sendRedirect(res, `${canvasAuthUrl}?client_id=${data.clientID}&response_type=code&redirect_uri=${redirectUri}&state=${paramsId}`);
       }
 
       // Course exists, update course details
@@ -114,24 +163,29 @@ class LtiController {
 
   async enableCourse(req: Request, res: Response) {
     try {
-      const {code, state} = req.body;
-      const paramsRef = db.collection("temp").doc(state);
+      const {code, state} = req.query;
+      logger.log("Enable course request received");
+
+      // Check if required parameters are present in query
+      if (!state || !code) {
+        return requestHandler.sendClientError(req, res, "Missing required parameters", 400);
+      }
+
+      const paramsRef = db.collection("temp").doc(state + "");
       const paramsDoc = await paramsRef.get();
       const courseId = paramsDoc.data()?.courseId;
       const courseName = paramsDoc.data()?.courseName;
       const userId = paramsDoc.data()?.userId;
 
-      logger.log("Enable course request received", courseId);
-
-      // Check if required parameters are present in request body
+      // Check if required parameters are present in state
       if (!courseId || !courseName || !userId || !code) {
         return requestHandler.sendClientError(req, res, "Missing required parameters", 400);
       }
 
-      // Generate instructor"s Canvas tokens for this course
+      // Generate instructor's Canvas tokens for this course
       const firstLetter = userId.search(/[A-Z]/i);
       const canvasURL = `${userId.substring(firstLetter)}.instructure.com`;
-      const tokenResponse = await requestAccessToken(code, canvasURL);
+      const tokenResponse = await requestAccessToken(code + "", canvasURL);
       const token = tokenResponse.access_token;
       const refreshToken = tokenResponse.refresh_token;
       if (!token || !refreshToken) {
@@ -143,9 +197,28 @@ class LtiController {
       await courseRef.set({
         courseId: courseId,
         courseName: courseName,
-        token: token,
+        accessToken: token,
         refreshToken: refreshToken,
         updatedAt: FieldValue.serverTimestamp(),
+      });
+
+      // Create assignment categories for graded and participation polls
+      const params1 = "name=LiveLearn Graded Polls";
+      const response1 = await requestHandler.sendCanvasRequest(
+        "POST", canvasURL,
+        `/api/v1/courses/${getCanvasId(courseId)}/group_categories?${params1}`,
+        courseId, true,
+      );
+      const params2 = "name=LiveLearn Participation Polls";
+      const response2 = await requestHandler.sendCanvasRequest(
+        "POST", canvasURL,
+        `/api/v1/courses/${getCanvasId(courseId)}/group_categories?${params2}`,
+        courseId, true,
+      );
+
+      await courseRef.update({
+        gradedCategory: response1.id,
+        participationCategory: response2.id,
       });
       await paramsRef.delete();
 
