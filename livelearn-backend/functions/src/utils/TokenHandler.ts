@@ -71,17 +71,19 @@ async function refreshAccessToken(refreshToken: string, courseId: string, domain
 /**
  * Requests token to access Assignment Grading Services
  * @param {string} courseId
- * @param {string} domain
  */
-async function requestAGSToken(courseId: string, domain: string) {
+async function requestAGSToken(courseId: string) {
+  const domain = courseId.substring(courseId.search(/[A-Z]/i)) + ".instructure.com";
   const {ltiClientId} = await getClientIdAndSecret(domain);
   const keyData = (await db.collection("consumers").doc("livelearn").get()).data();
-  const jwt = sign({}, jwkToBuffer(keyData!.private_key), {
+  const jwt = sign({}, jwkToBuffer(keyData!.private_key, {private: true}), {
     algorithm: "RS256",
     keyid: keyData!.kid,
     issuer: functionUrl,
     subject: ltiClientId,
     audience: `https://${domain}/login/oauth2/token`,
+    expiresIn: 50000,
+    jwtid: crypto.randomUUID(),
   });
 
   const params = {

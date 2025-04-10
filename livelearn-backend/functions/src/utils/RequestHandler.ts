@@ -112,12 +112,12 @@ class RequestHandler {
         throw new Error(json.errors[0]?.message ?? JSON.stringify(json.errors));
       }
       if (isAGS) {
-        await requestAGSToken(courseId, domain);
+        await requestAGSToken(courseId);
       }
       else {
         await refreshAccessToken(refreshToken, courseId, domain);
       }
-      return this.sendCanvasRequest(method, url, courseId, isAGS, false);
+      return this.sendCanvasRequest(url, method, courseId, isAGS, false);
     }
     // Check for pagination
     if (response.headers.get("link")) {
@@ -125,7 +125,7 @@ class RequestHandler {
       data.push(...json);
       if (parsed && parsed.next) {
         const parsedURL = parsed.next.url.substring(parsed.next.url.indexOf("/api"));
-        return this.sendCanvasRequest(method, parsedURL, courseId, isAGS, false, data);
+        return this.sendCanvasRequest(parsedURL, method, courseId, isAGS, false, data);
       }
       return data;
     }
