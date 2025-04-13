@@ -1,5 +1,6 @@
 {
   "preset": "ts-jest",
   "testEnvironment": "node",
-  "moduleFileExtensions": ["ts", "tsx", "js", "json", "node"]
+  "moduleFileExtensions": ["ts", "tsx", "js", "json", "node"],
+  "modulePathIgnorePatterns": ["lib"]
 }

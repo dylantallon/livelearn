@@ -70,6 +70,9 @@ class LtiController {
 
     try {
       // Verify state
+      if (!req.body.state) {
+        return requestHandler.sendClientError(req, res, "Invalid LTI request", 400);
+      }
       const paramsDoc = await db.collection("temp").doc(req.body.state).get();
       const data = paramsDoc.data();
       if (!data || !data.iss || !data.clientID) {
