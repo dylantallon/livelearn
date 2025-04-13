@@ -52,6 +52,47 @@ class CanvasController {
       return requestHandler.sendServerError(req, res, error);
     }
   }
+
+  async gradeAssignment(req: Request, res: Response) {
+    const {pollId} = req.body;
+    logger.log("Grade assignment request received", pollId);
+
+    // Check if required parameters are present in request body
+    if (!pollId) {
+      return requestHandler.sendClientError(req, res, "Missing required parameters", 400);
+    }
+
+    try {
+      // Retrieve poll scores
+      const pollDoc = await db.collection("polls").doc(pollId).get();
+      const pollData = pollDoc.data();
+      if (!pollData) {
+        return requestHandler.sendClientError(req, res, "Poll ID does not exist", 400);
+      }
+      const scores = await pollDoc.ref.collection("scores").get();
+      if (!scores.docs.length) {
+        return requestHandler.sendClientError(req, res, "Poll does not have any scores", 400);
+      }
+
+      // Grade assignment via AGS
+      const canvasCourseId = getCanvasId(pollData.courseId);
+      const timestamp = new Date().toISOString();
+      for (const scoreDoc of scores.docs) {
+        let params = `userId=${getCanvasId(scoreDoc.id)}&timestamp=${timestamp}`;
+        params += "&activityProgress=Completed&gradingProgress=FullyGraded";
+        params += `&scoreGiven=${scoreDoc.data().points}&scoreMaximum=${pollData.points}`;
+        await requestHandler.sendCanvasRequest(
+          `/api/lti/courses/${canvasCourseId}/line_items/${pollData.assignmentId}/scores?${params}`,
+          "POST", pollData.courseId, true, true,
+        );
+      }
+
+      return requestHandler.sendSuccess(res)("Assignment graded");
+    }
+    catch (error) {
+      return requestHandler.sendServerError(req, res, error);
+    }
+  }
 }
 
 export default CanvasController;

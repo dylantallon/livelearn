@@ -7,4 +7,6 @@ const canvasController = new CanvasController();
 
 canvasRouter.post("/assignments", canvasController.createAssignment);
 
+canvasRouter.post("/grades", canvasController.gradeAssignment);
+
 export default canvasRouter;
