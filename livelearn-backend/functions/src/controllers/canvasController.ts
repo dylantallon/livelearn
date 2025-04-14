@@ -31,8 +31,22 @@ class CanvasController {
       }
       const canvasCourseId = getCanvasId(pollData.courseId);
 
-      // Create assignment if it does not exist
       let lineItemId = pollData.assignmentId;
+      // Check if assignment exists in Canvas
+      if (lineItemId) {
+        try {
+          await requestHandler.sendCanvasRequest(
+            `/api/lti/courses/${canvasCourseId}/line_items/${lineItemId}`,
+            "GET", pollData.courseId, true, true,
+          );
+        }
+        catch (error) {
+          if (error instanceof Error && error.message.includes("resource does not exist")) {
+            lineItemId = null;
+          }
+        }
+      }
+      // Create assignment if it does not exist
       if (!lineItemId) {
         // Create assignment in category via API
         // const courseDoc = await db.collection("courses").doc(pollData.courseId).get();
