@@ -1,5 +1,3 @@
-"use client"
-
 import { useLocation, useNavigate } from "react-router-dom"
 import { useState, useEffect, useContext } from "react"
 import {
@@ -17,6 +15,7 @@ import "./session.css"
 import Header from '../Components/Header'
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import MonitorIcon from '@mui/icons-material/Monitor';
 import { AuthContext } from "../Components/AuthContext";
 
 interface Question {
@@ -117,6 +116,32 @@ export default function Session() {
     }
   };
 
+  const createAssignment = async () => {
+    try {
+      const pollRef = doc(db, "polls", pollId);
+      const pollSnap = await getDoc(pollRef);
+
+      if (pollSnap.exists()) {
+        const data = pollSnap.data();
+        if (data.graded) {
+          await fetch("https://us-central1-livelearn-fe28b.cloudfunctions.net/api/v1/canvas/assignments", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ pollId }),
+          });
+        }
+      }
+
+      await deleteDoc(doc(db, "session", courseId));
+    } catch (err) {
+      console.error("Failed to create assignment or end session:", err);
+    } finally {
+      handleBackClick();
+    }
+  };
+
   const currentQuestion = questions[currentQuestionIndex];
 
   return (
@@ -124,10 +149,7 @@ export default function Session() {
       <Header />
       <div className="question-session-container">
         <Box className="session-inner">
-          <div
-            className="sticky-question-header"
-            style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: "1rem" }}
-          >
+          <div className="sticky-question-header" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: "1rem" }}>
             <Typography
               variant="h5"
               fontWeight="bold"
@@ -137,6 +159,14 @@ export default function Session() {
               Question {currentQuestionIndex + 1}/{questions.length}:
             </Typography>
             <div className="session-nav-buttons">
+            <button
+              onClick={() => window.open("/display", "_blank")}
+              className="nav-button"
+              title="Display Questions"
+              style={{ padding: "0.5rem", color: "white", backgroundColor: "#007bff" }}
+            >
+              <MonitorIcon fontSize="medium" />
+            </button>
               <button
                 onClick={goToPreviousQuestion}
                 disabled={currentQuestionIndex === 0}
@@ -160,31 +190,31 @@ export default function Session() {
           <div className="question-scrollable-area">
             {currentQuestion?.type === "radio" && (
               <SessionRadio
-                {...currentQuestion}
+                id={currentQuestion.id}
                 initialQuestion={currentQuestion.title}
-                initialChoices={currentQuestion.choices || []}
-                initialImages={currentQuestion.images || []}
+                initialChoices={currentQuestion.choices ?? []}
+                initialImages={currentQuestion.images ?? []}
                 initialPoints={currentQuestion.points ?? 1}
-                answers={currentQuestion.answers || []}
+                answers={currentQuestion.answers ?? []}
               />
             )}
             {currentQuestion?.type === "checkbox" && (
               <SessionCheckBox
-                {...currentQuestion}
+                id={currentQuestion.id}
                 initialQuestion={currentQuestion.title}
-                initialChoices={currentQuestion.choices || []}
-                initialImages={currentQuestion.images || []}
+                initialChoices={currentQuestion.choices ?? []}
+                initialImages={currentQuestion.images ?? []}
                 initialPoints={currentQuestion.points ?? 1}
-                answers={currentQuestion.answers || []}
+                answers={currentQuestion.answers ?? []}
               />
             )}
             {currentQuestion?.type === "text" && (
               <SessionText
-                {...currentQuestion}
+                id={currentQuestion.id}
                 initialQuestion={currentQuestion.title}
-                initialImages={currentQuestion.images || []}
+                initialImages={currentQuestion.images ?? []}
                 initialPoints={currentQuestion.points ?? 1}
-                answers={currentQuestion.answers || []}
+                answers={currentQuestion.answers ?? []}
               />
             )}
           </div>
@@ -198,15 +228,7 @@ export default function Session() {
             </div>
             <div className="session-right-buttons">
               <ConfirmationDialog
-                onConfirm={async () => {
-                  try {
-                    await deleteDoc(doc(db, "session", courseId));
-                  } catch (err) {
-                    console.error("Failed to delete session:", err);
-                  } finally {
-                    handleBackClick();
-                  }
-                }}
+                onConfirm={createAssignment}
                 title="End Session"
                 description={`Are you sure you want to end the session?`}
                 trigger={

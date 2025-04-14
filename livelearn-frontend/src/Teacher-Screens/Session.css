@@ -48,12 +48,12 @@
   
   .answered-div {
     border-radius: 5px;
-    background-color: #007bff;
-    color: white;
+    background-color: white;
+    color: #000000;
     display: flex;
     align-items: center;
     gap: 2px;
-    border: 1px solid transparent;
+    border: 1px solid white;
     padding-left: 1.2em;
     padding-right: 1.2em;
     font-size: 1em;
