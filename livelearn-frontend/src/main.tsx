@@ -7,7 +7,7 @@ import Poll from "./Teacher-Screens/Poll.tsx";
 import Score from "./Teacher-Screens/Score.tsx";
 import Edit from "./Teacher-Screens/Edit.tsx";
 import Session from "./Teacher-Screens/Session.tsx";
-import LoadingScreen from "./Student-Screens/LoadingScreen.tsx";
+//import LoadingScreen from "./Student-Screens/LoadingScreen.tsx";
 import FinalScreen from "./Student-Screens/FinalScreen.tsx";
 import TestPoll from "./Student-Screens/testPoll.tsx";
 import StudentScreen from "./Student-Screens/StudentScreen.tsx";
@@ -23,7 +23,7 @@ const App = () => {
         <Route path="/scores" element={<Score />} />
         <Route path="/edit" element={<Edit />} />
         <Route path="/session" element={<Session />} />
-        <Route path="/loading" element={<LoadingScreen />} />
+        <Route path="/display" element={<StudentScreen />} />
         <Route path="/quiz" element={<StudentScreen />} />
         <Route path="/finished" element={<FinalScreen />} />
         <Route path="/testpoll" element={<TestPoll />} />

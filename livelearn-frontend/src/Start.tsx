@@ -41,7 +41,7 @@ function Start() {
         return <Navigate to="/poll" replace/>
       }
       if (role === "Learner") {
-        return <Navigate to="/loading" replace/>
+        return <Navigate to="/quiz" replace/>
       }
     }
 

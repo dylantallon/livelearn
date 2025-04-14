@@ -13,6 +13,7 @@ import {
   getAssistantRoles,
   getObserverRoles,
   getCanvasId,
+  getClientIdAndSecret,
 } from "../utils/LtiUtils";
 import {livelearnDomain, functionUrl} from "../utils/constants";
 import {requestAccessToken} from "../utils/TokenHandler";
@@ -25,6 +26,11 @@ interface canvasPayload {
     title: string,
   }
   "https://purl.imsglobal.org/spec/lti/claim/roles": string[],
+  "https://purl.imsglobal.org/spec/lti/claim/custom": {
+    "user_id": string,
+    "course_id": string,
+    "api_domain": string,
+  },
 }
 
 class LtiController {
@@ -64,6 +70,9 @@ class LtiController {
 
     try {
       // Verify state
+      if (!req.body.state) {
+        return requestHandler.sendClientError(req, res, "Invalid LTI request", 400);
+      }
       const paramsDoc = await db.collection("temp").doc(req.body.state).get();
       const data = paramsDoc.data();
       if (!data || !data.iss || !data.clientID) {
@@ -85,9 +94,9 @@ class LtiController {
       const payload = decodedJWT?.payload as canvasPayload;
       const context_title = payload["https://purl.imsglobal.org/spec/lti/claim/context"].title;
       const roles = payload["https://purl.imsglobal.org/spec/lti/claim/roles"];
-      const course_id = "206";
-      const user_id = "133";
-      const api_domain = "ufldev.instructure.com";
+      const course_id = payload["https://purl.imsglobal.org/spec/lti/claim/custom"].course_id;
+      const user_id = payload["https://purl.imsglobal.org/spec/lti/claim/custom"].user_id;
+      const api_domain = payload["https://purl.imsglobal.org/spec/lti/claim/custom"].api_domain;
       if (!course_id || !user_id || !api_domain || !context_title || !roles) {
         return requestHandler.sendClientError(req, res, "Missing required LTI parameters", 400);
       }
@@ -123,10 +132,11 @@ class LtiController {
           createdAt: FieldValue.serverTimestamp(),
         });
 
+        const {apiClientId} = await getClientIdAndSecret(api_domain);
         const canvasAuthUrl = `https://${api_domain}/login/oauth2/auth`;
-        const redirectUri = `${functionUrl}/lti/enableCourse`;
-        // eslint-disable-next-line max-len
-        return requestHandler.sendRedirect(res, `${canvasAuthUrl}?client_id=${data.clientID}&response_type=code&redirect_uri=${redirectUri}&state=${paramsId}`);
+        let params = `client_id=${apiClientId}&response_type=code`;
+        params += `&redirect_uri=${functionUrl}/lti/enableCourse&state=${paramsId}`;
+        return requestHandler.sendRedirect(res, `${canvasAuthUrl}?${params}`);
       }
 
       // Course exists, update course details
@@ -163,10 +173,13 @@ class LtiController {
 
   async enableCourse(req: Request, res: Response) {
     try {
-      const {code, state} = req.query;
+      const {code, state, error_description} = req.query;
       logger.log("Enable course request received");
 
       // Check if required parameters are present in query
+      if (error_description) {
+        return requestHandler.sendClientError(req, res, error_description + "", 400);
+      }
       if (!state || !code) {
         return requestHandler.sendClientError(req, res, "Missing required parameters", 400);
       }
@@ -178,7 +191,7 @@ class LtiController {
       const userId = paramsDoc.data()?.userId;
 
       // Check if required parameters are present in state
-      if (!courseId || !courseName || !userId || !code) {
+      if (!courseId || !courseName || !userId) {
         return requestHandler.sendClientError(req, res, "Missing required parameters", 400);
       }
 
@@ -196,29 +209,21 @@ class LtiController {
       const courseRef = db.collection("courses").doc(courseId);
       await courseRef.set({
         courseId: courseId,
-        courseName: courseName,
+        name: courseName,
+        instructors: [userId],
+        assistants: [],
         accessToken: token,
         refreshToken: refreshToken,
         updatedAt: FieldValue.serverTimestamp(),
       });
 
-      // Create assignment categories for graded and participation polls
-      const params1 = "name=LiveLearn Graded Polls";
-      const response1 = await requestHandler.sendCanvasRequest(
-        "POST", canvasURL,
-        `/api/v1/courses/${getCanvasId(courseId)}/group_categories?${params1}`,
-        courseId, true,
+      // Create assignment category for polls
+      const response = await requestHandler.sendCanvasRequest(
+        `/api/v1/courses/${getCanvasId(courseId)}/assignment_groups?name=LiveLearn`,
+        "POST", courseId, false, false,
       );
-      const params2 = "name=LiveLearn Participation Polls";
-      const response2 = await requestHandler.sendCanvasRequest(
-        "POST", canvasURL,
-        `/api/v1/courses/${getCanvasId(courseId)}/group_categories?${params2}`,
-        courseId, true,
-      );
-
       await courseRef.update({
-        gradedCategory: response1.id,
-        participationCategory: response2.id,
+        assignmentCategory: response.id,
       });
       await paramsRef.delete();
 

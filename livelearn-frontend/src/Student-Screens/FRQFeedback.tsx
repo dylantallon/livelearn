@@ -1,5 +1,4 @@
 import React from "react";
-import { useLocation } from "react-router-dom";
 import Header from "../Components/Header";
 import "./FRQ.css";
 
@@ -14,7 +13,7 @@ interface FRQFeedbackProps {
   onNext: () => void;
 }
 
-const FRQFeedback: React.FC<FRQFeedbackProps> = ({ question, userAnswer, onNext }) => {
+const FRQFeedback: React.FC<FRQFeedbackProps> = ({ question, userAnswer}) => {
   const isCorrect = question.acceptedAnswers.some(
     (ans) => ans.trim().toLowerCase() === userAnswer.trim().toLowerCase()
   );
@@ -53,11 +52,11 @@ const FRQFeedback: React.FC<FRQFeedbackProps> = ({ question, userAnswer, onNext 
           </div>
         </div>
 
-        <div className="button-row-bottom">
+        {/* <div className="button-row-bottom">
           <button className="next-btn" onClick={onNext}>
             Next Question
           </button>
-        </div>
+        </div> */}
       </div>
     </>
   );

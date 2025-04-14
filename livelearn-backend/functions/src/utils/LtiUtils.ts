@@ -46,10 +46,10 @@ function getObserverRoles() {
 }
 
 /**
- * Returns the client ID and secret.
+ * Returns the client IDs and secrets.
  *
  * @param {string} domain The Canvas API domain
- * @return {Object} The client ID and secret.
+ * @return {Object} The client IDs and secrets.
  */
 async function getClientIdAndSecret(domain: string) {
   const consumerRef = db.collection("consumers").doc(domain);
@@ -57,8 +57,10 @@ async function getClientIdAndSecret(domain: string) {
   const data = consumerDoc.data();
 
   return {
-    clientId: data!.clientID,
-    clientSecret: data!.clientSecret,
+    ltiClientId: data!.ltiClientID,
+    ltiClientSecret: data!.ltiClientSecret,
+    apiClientId: data!.apiClientID,
+    apiClientSecret: data!.apiClientSecret,
   };
 }
 

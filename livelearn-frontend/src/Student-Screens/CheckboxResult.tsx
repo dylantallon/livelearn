@@ -9,7 +9,7 @@ interface CheckboxResultProps {
   onNext: () => void;
 }
 
-const CheckboxResult: React.FC<CheckboxResultProps> = ({ question, userAnswer, onShowAnswer, onNext }) => {
+const CheckboxResult: React.FC<CheckboxResultProps> = ({ question, userAnswer}) => {
   const hasImage = !!question.image;
 
   return (
@@ -39,14 +39,14 @@ const CheckboxResult: React.FC<CheckboxResultProps> = ({ question, userAnswer, o
         </div>
       </div>
 
-      <div className="result-button-row">
+      {/* <div className="result-button-row">
         <button className="next-btn" onClick={onShowAnswer}>
           Show Answer
         </button>
         <button className="next-btn" onClick={onNext}>
           Next Question
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };

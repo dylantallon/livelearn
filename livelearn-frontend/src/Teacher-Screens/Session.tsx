@@ -1,7 +1,5 @@
-"use client"
-
-import { useLocation } from "react-router-dom"
-import { useState, useEffect } from "react"
+import { useLocation, useNavigate } from "react-router-dom"
+import { useState, useEffect, useContext } from "react"
 import {
   Box,
   Typography,
@@ -11,13 +9,14 @@ import SessionCheckBox from "./Components/SessionCheckBox"
 import SessionRadio from "./Components/SessionRadio"
 import SessionText from "./Components/SessionText"
 import { ConfirmationDialog } from "./Components/Confirmation"
-import { doc, getDoc } from "firebase/firestore"
+import { doc, getDoc, deleteDoc, updateDoc } from "firebase/firestore"
 import { db } from "../firebase"
 import "./session.css"
 import Header from '../Components/Header'
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import { useNavigate } from "react-router-dom"
+import MonitorIcon from '@mui/icons-material/Monitor';
+import { AuthContext } from "../Components/AuthContext";
 
 interface Question {
   id: string
@@ -30,12 +29,15 @@ interface Question {
 }
 
 export default function Session() {
+  const { courseId } = useContext(AuthContext);
   const location = useLocation()
   const { pollId } = location.state || {}
 
   const [questions, setQuestions] = useState<Question[]>([])
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [answerShown, setAnswerShown] = useState(false)
+
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchPoll = async () => {
@@ -58,37 +60,115 @@ export default function Session() {
     fetchPoll()
   }, [pollId])
 
+  const updateSessionIndex = async (index: number) => {
+    try {
+      await updateDoc(doc(db, "session", courseId), {
+        questionIndex: index,
+      });
+    } catch (err) {
+      console.error("Failed to update question index:", err);
+    }
+  };
+
+  const resetShowAnswer = async () => {
+    try {
+      await updateDoc(doc(db, "session", courseId), {
+        showAnswer: false,
+      });
+    } catch (err) {
+      console.error("Failed to reset showAnswer:", err);
+    }
+  };
+
   const goToNextQuestion = () => {
     if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1)
+      const newIndex = currentQuestionIndex + 1;
+      setCurrentQuestionIndex(newIndex);
+      updateSessionIndex(newIndex);
+      resetShowAnswer();
+      setAnswerShown(false);
     }
-  }
+  };
 
   const goToPreviousQuestion = () => {
     if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1)
+      const newIndex = currentQuestionIndex - 1;
+      setCurrentQuestionIndex(newIndex);
+      updateSessionIndex(newIndex);
+      resetShowAnswer();
+      setAnswerShown(false);
     }
-  }
+  };
 
-  const currentQuestion = questions[currentQuestionIndex]
-
-  const navigate = useNavigate()
   const handleBackClick = () => {
-    navigate(-1)
-  }
+    navigate(-1);
+  };
+
+  const toggleAnswerShown = async () => {
+    const newShown = !answerShown;
+    setAnswerShown(newShown);
+    try {
+      await updateDoc(doc(db, "session", courseId), {
+        showAnswer: newShown,
+      });
+    } catch (err) {
+      console.error("Failed to update showAnswer:", err);
+    }
+  };
+
+  const createAssignment = async () => {
+    try {
+      const pollRef = doc(db, "polls", pollId);
+      const pollSnap = await getDoc(pollRef);
+
+      if (pollSnap.exists()) {
+        const data = pollSnap.data();
+        if (data.graded) {
+          await fetch("https://us-central1-livelearn-fe28b.cloudfunctions.net/api/v1/canvas/assignments", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ pollId }),
+          });
+        }
+      }
+
+      await deleteDoc(doc(db, "session", courseId));
+    } catch (err) {
+      console.error("Failed to create assignment or end session:", err);
+    } finally {
+      handleBackClick();
+    }
+  };
+
+  const currentQuestion = questions[currentQuestionIndex];
 
   return (
     <div className="app-container">
       <Header />
       <div className="question-session-container">
         <Box className="session-inner">
-          <div className="sticky-question-header" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: "1rem"}}>
-            <Typography variant="h5" fontWeight="bold" className="session-title" sx={{ lineHeight: 1, flex: 1, alignItems: "center" }}>
+          <div className="sticky-question-header" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: "1rem" }}>
+            <Typography
+              variant="h5"
+              fontWeight="bold"
+              className="session-title"
+              sx={{ lineHeight: 1, flex: 1, alignItems: "center" }}
+            >
               Question {currentQuestionIndex + 1}/{questions.length}:
             </Typography>
             <div className="session-nav-buttons">
+            <button
+              onClick={() => window.open("/display", "_blank")}
+              className="nav-button"
+              title="Display Questions"
+              style={{ padding: "0.5rem", color: "white", backgroundColor: "#007bff" }}
+            >
+              <MonitorIcon fontSize="medium" />
+            </button>
               <button
-                onClick={ () => {goToPreviousQuestion(); setAnswerShown(false);}}
+                onClick={goToPreviousQuestion}
                 disabled={currentQuestionIndex === 0}
                 className="nav-button"
               >
@@ -97,7 +177,7 @@ export default function Session() {
               </button>
 
               <button
-                onClick={ () => {goToNextQuestion(); setAnswerShown(false);}}
+                onClick={goToNextQuestion}
                 disabled={currentQuestionIndex === questions.length - 1}
                 className="nav-button"
               >
@@ -108,61 +188,57 @@ export default function Session() {
           </div>
 
           <div className="question-scrollable-area">
-            {currentQuestion && currentQuestion.type === "radio" && (
+            {currentQuestion?.type === "radio" && (
               <SessionRadio
-                {...currentQuestion}
+                id={currentQuestion.id}
                 initialQuestion={currentQuestion.title}
-                initialChoices={currentQuestion.choices || []}
-                initialImages={currentQuestion.images || []}
+                initialChoices={currentQuestion.choices ?? []}
+                initialImages={currentQuestion.images ?? []}
                 initialPoints={currentQuestion.points ?? 1}
-                answers={currentQuestion.answers || []}
+                answers={currentQuestion.answers ?? []}
               />
             )}
-            {currentQuestion && currentQuestion.type === "checkbox" && (
+            {currentQuestion?.type === "checkbox" && (
               <SessionCheckBox
-                {...currentQuestion}
+                id={currentQuestion.id}
                 initialQuestion={currentQuestion.title}
-                initialChoices={currentQuestion.choices || []}
-                initialImages={currentQuestion.images || []}
+                initialChoices={currentQuestion.choices ?? []}
+                initialImages={currentQuestion.images ?? []}
                 initialPoints={currentQuestion.points ?? 1}
-                answers={currentQuestion.answers || []}
+                answers={currentQuestion.answers ?? []}
               />
             )}
-            {currentQuestion && currentQuestion.type === "text" && (
+            {currentQuestion?.type === "text" && (
               <SessionText
-                {...currentQuestion}
+                id={currentQuestion.id}
                 initialQuestion={currentQuestion.title}
-                initialImages={currentQuestion.images || []}
+                initialImages={currentQuestion.images ?? []}
                 initialPoints={currentQuestion.points ?? 1}
-                answers={currentQuestion.answers || []}
+                answers={currentQuestion.answers ?? []}
               />
             )}
           </div>
 
           <Box className="session-controls">
             <div className="session-left-buttons">
-              <div className="answered-div">
-                3/100 Answered
-              </div>
-              <button className="answer-button" onClick={() => setAnswerShown(prev => !prev)}>
+              <div className="answered-div">3/100 Answered</div>
+              <button className="answer-button" onClick={toggleAnswerShown}>
                 {answerShown ? "Hide Answer" : "Show Answer"}
               </button>
             </div>
             <div className="session-right-buttons">
-                <ConfirmationDialog
-                    onConfirm={() => handleBackClick()}
-                    title="End Session"
-                    description={`Are you sure you want to end the session?`}
-                    trigger={
-                      <button className="session-end-button">
-                        End Session
-                      </button>
-                    }
-                />
+              <ConfirmationDialog
+                onConfirm={createAssignment}
+                title="End Session"
+                description={`Are you sure you want to end the session?`}
+                trigger={
+                  <button className="session-end-button">End Session</button>
+                }
+              />
             </div>
           </Box>
         </Box>
       </div>
     </div>
-  )
+  );
 }

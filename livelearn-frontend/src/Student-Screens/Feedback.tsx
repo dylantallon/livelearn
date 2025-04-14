@@ -14,7 +14,7 @@ interface FeedbackProps {
   onNext: () => void;
 }
 
-const Feedback: React.FC<FeedbackProps> = ({ question, userAnswer, correctAnswer, onNext }) => {
+const Feedback: React.FC<FeedbackProps> = ({ question, userAnswer, correctAnswer}) => {
   const hasImage = !!question.image;
 
   return (
@@ -53,12 +53,12 @@ const Feedback: React.FC<FeedbackProps> = ({ question, userAnswer, correctAnswer
           })}
         </div>
       </div>
-
+{/* 
       <div className="button-row-bottom">
         <button className="next-btn" onClick={onNext}>
           Next Question
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };

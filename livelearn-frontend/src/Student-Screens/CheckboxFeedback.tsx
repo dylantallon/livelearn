@@ -8,7 +8,7 @@ interface CheckboxFeedbackProps {
   onNext: () => void;
 }
 
-const CheckboxFeedback: React.FC<CheckboxFeedbackProps> = ({ question, userAnswer, onNext }) => {
+const CheckboxFeedback: React.FC<CheckboxFeedbackProps> = ({ question, userAnswer}) => {
   const hasImage = !!question.image;
 
   return (
@@ -44,11 +44,11 @@ const CheckboxFeedback: React.FC<CheckboxFeedbackProps> = ({ question, userAnswe
         </div>
       </div>
 
-      <div className="button-row-bottom">
+      {/* <div className="button-row-bottom">
         <button className="next-btn" onClick={onNext}>
           Next Question
         </button>
-      </div>
+      </div> */}
     </div>
   );
 };
