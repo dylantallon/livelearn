@@ -30,7 +30,7 @@ const StudentScreen: React.FC = () => {
   const [questionIndex, setQuestionIndex] = useState(0);
   const [stage, setStage] = useState<"question" | "result" | "feedback">("question");
   const [score, setScore] = useState(0);
-  const [userAnswers, setUserAnswers] = useState<(string | string[])[]>([]);
+  const [, setUserAnswers] = useState<(string | string[])[]>([]);
   const [lastUserAnswer, setLastUserAnswer] = useState<string | string[]>(``);
   const [lastCorrectAnswer, setLastCorrectAnswer] = useState<string>("");
 
