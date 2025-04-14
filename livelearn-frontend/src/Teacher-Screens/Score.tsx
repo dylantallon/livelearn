@@ -39,7 +39,7 @@ function Score() {
         <ArrowBackIcon className="btn-back" onClick={handleBackClick}/>
         <div className="score-list">
           {students.map((student) => (
-            <div key={student.id} className="survey-row">
+            <div key={student.id} className="survey-score-row">
               <div className="student-name">
                 {student.name}
               </div>

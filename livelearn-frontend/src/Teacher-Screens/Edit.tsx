@@ -1,5 +1,3 @@
-"use client"
-
 import "./Edit.css"
 import CheckboxQuestion from "./Components/CheckBoxQuestion"
 import TextQuestion from "./Components/TextQuestion"
@@ -20,7 +18,7 @@ import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked"
 import TextFieldsIcon from "@mui/icons-material/TextFields"
 import ArrowBackIcon from "@mui/icons-material/ArrowBack"
 import Header from "../Components/Header"
-
+import { SettingsDropdown } from "./Components/SettingsDropdown"
 import { doc, getDoc, updateDoc } from "firebase/firestore"
 import { db } from "../firebase"
 
@@ -44,6 +42,8 @@ function Edit() {
   const [editingName, setEditingName] = useState(false)
   const [questions, setQuestions] = useState<Question[]>([])
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const [graded, setGraded] = useState(false)
+  const [completion, setCompletion] = useState(false)
   const open = Boolean(anchorEl)
 
   useEffect(() => {
@@ -57,7 +57,9 @@ function Edit() {
         if (docSnap.exists()) {
           const pollData = docSnap.data()
           setName(pollData.title)
-          setQuestions(pollData.questions)
+          setQuestions(pollData.questions || [])
+          setGraded(pollData.graded || false)
+          setCompletion(pollData.completion || false)
         } else {
           console.error("Poll could not be found")
         }
@@ -215,9 +217,7 @@ function Edit() {
     }))
 
   const navigate = useNavigate()
-  const handleBackClick = () => {
-    navigate(-1)
-  }
+  const handleBackClick = () => navigate(-1)
 
   return (
     <div className="app-container">
@@ -239,13 +239,6 @@ function Edit() {
                   multiline
                   minRows={1}
                   maxRows={4}
-                  sx={{
-                    flexGrow: 1,
-                    width: "auto",
-                    "& .MuiOutlinedInput-root": {
-                      alignItems: "flex-start",
-                    },
-                  }}
                 />
               </Stack>
             ) : (
@@ -253,13 +246,7 @@ function Edit() {
                 <Typography
                   variant="h5"
                   fontWeight="bold"
-                  sx={{
-                    flex: 1,
-                    wordBreak: "break-word",
-                    lineHeight: 1.5,
-                    paddingRight: 1,
-                    cursor: "pointer",
-                  }}
+                  sx={{ flex: 1, wordBreak: "break-word", lineHeight: 1.5, paddingRight: 1, cursor: "pointer" }}
                   onClick={startEditingName}
                 >
                   {name}
@@ -271,6 +258,15 @@ function Edit() {
             <button className="add-question-btn" onClick={handleAddButtonClick}>
               <AddIcon fontSize="inherit" /> Add Question
             </button>
+            <SettingsDropdown
+              pollId={pollId}
+              graded={graded}
+              completion={completion}
+              onUpdate={({ graded, completion }) => {
+                setGraded(graded)
+                setCompletion(completion)
+              }}
+            />
             <Menu
               anchorEl={anchorEl}
               open={open}
@@ -309,32 +305,12 @@ function Edit() {
           }
 
           if (question.type === "radio") {
-            return (
-              <RadioQuestion
-                key={question.id}
-                {...commonProps}
-                initialChoices={question.choices || []}
-                onChoicesChange={(newChoices) => updateQuestionChoices(question.id, newChoices)}
-              />
-            )
+            return <RadioQuestion key={question.id} {...commonProps} initialChoices={question.choices || []} onChoicesChange={(newChoices) => updateQuestionChoices(question.id, newChoices)} />
           } else if (question.type === "checkbox") {
-            return (
-              <CheckboxQuestion
-                key={question.id}
-                {...commonProps}
-                initialChoices={question.choices || []}
-                onChoicesChange={(newChoices) => updateQuestionChoices(question.id, newChoices)}
-              />
-            )
+            return <CheckboxQuestion key={question.id} {...commonProps} initialChoices={question.choices || []} onChoicesChange={(newChoices) => updateQuestionChoices(question.id, newChoices)} />
           } else if (question.type === "text") {
-            return (
-              <TextQuestion
-                key={question.id}
-                {...commonProps}
-              />
-            )
+            return <TextQuestion key={question.id} {...commonProps} />
           }
-
           return null
         })}
 
