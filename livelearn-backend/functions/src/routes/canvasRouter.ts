@@ -5,8 +5,6 @@ import CanvasController from "../controllers/canvasController";
 const canvasRouter = Router();
 const canvasController = new CanvasController();
 
-canvasRouter.post("/assignments", canvasController.createAssignment);
-
-canvasRouter.post("/grades", canvasController.gradeAssignment);
+canvasRouter.post("/assignments", canvasController.gradeAssignment);
 
 export default canvasRouter;
