@@ -35,6 +35,8 @@ function Poll() {
     title: string;
     courseId: string;
     questions: Question[];
+    graded: boolean;
+    completion: boolean;
   }
 
   const navigate = useNavigate();
@@ -71,6 +73,8 @@ function Poll() {
       title: `New Poll`,
       questions: [],
       courseId: courseId,
+      graded: false,
+      completion: false
     };
 
     try {
@@ -100,7 +104,7 @@ function Poll() {
   const handleStartSession = async () => {
     if (selectedPollId) {
       try {
-        await setDoc(doc(db, "session", "current"), {
+        await setDoc(doc(db, "session", courseId), {
           pollId: selectedPollId
         });
         navigate('/session', { state: { pollId: selectedPollId } });

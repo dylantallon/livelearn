@@ -1,7 +1,7 @@
 "use client"
 
 import { useLocation, useNavigate } from "react-router-dom"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import {
   Box,
   Typography,
@@ -17,6 +17,7 @@ import "./session.css"
 import Header from '../Components/Header'
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import { AuthContext } from "../Components/AuthContext";
 
 interface Question {
   id: string
@@ -29,6 +30,7 @@ interface Question {
 }
 
 export default function Session() {
+  const { courseId } = useContext(AuthContext);
   const location = useLocation()
   const { pollId } = location.state || {}
 
@@ -61,7 +63,7 @@ export default function Session() {
 
   const updateSessionIndex = async (index: number) => {
     try {
-      await updateDoc(doc(db, "session", "current"), {
+      await updateDoc(doc(db, "session", courseId), {
         questionIndex: index,
       });
     } catch (err) {
@@ -71,7 +73,7 @@ export default function Session() {
 
   const resetShowAnswer = async () => {
     try {
-      await updateDoc(doc(db, "session", "current"), {
+      await updateDoc(doc(db, "session", courseId), {
         showAnswer: false,
       });
     } catch (err) {
@@ -107,7 +109,7 @@ export default function Session() {
     const newShown = !answerShown;
     setAnswerShown(newShown);
     try {
-      await updateDoc(doc(db, "session", "current"), {
+      await updateDoc(doc(db, "session", courseId), {
         showAnswer: newShown,
       });
     } catch (err) {
@@ -198,7 +200,7 @@ export default function Session() {
               <ConfirmationDialog
                 onConfirm={async () => {
                   try {
-                    await deleteDoc(doc(db, "session", "current"));
+                    await deleteDoc(doc(db, "session", courseId));
                   } catch (err) {
                     console.error("Failed to delete session:", err);
                   } finally {

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { db } from "../firebase";
 import {
@@ -6,6 +6,8 @@ import {
   doc as firestoreDoc,
   onSnapshot,
 } from "firebase/firestore";
+
+import { AuthContext } from "../Components/AuthContext";
 
 import "./LoadingScreen.css";
 import MCQ from "./MCQ";
@@ -21,6 +23,7 @@ import Header from "../Components/Header";
 
 const StudentScreen: React.FC = () => {
   const navigate = useNavigate();
+  const { courseId } = useContext(AuthContext);
 
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,12 +37,14 @@ const StudentScreen: React.FC = () => {
   const previousQuestionIndex = useRef<number>(-1);
 
   type Question =
-  | { type: "MCQ"; question: string; options: string[]; answer: string; image?: string; points: number }
-  | { type: "FRQ"; question: string; acceptedAnswers: string[]; image?: string; points: number }
-  | { type: "Checkbox"; question: string; options: string[]; answers: string[]; image?: string; points: number };
+    | { type: "MCQ"; question: string; options: string[]; answer: string; image?: string; points: number }
+    | { type: "FRQ"; question: string; acceptedAnswers: string[]; image?: string; points: number }
+    | { type: "Checkbox"; question: string; options: string[]; answers: string[]; image?: string; points: number };
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(firestoreDoc(db, "session", "current"), async (docSnap) => {
+    if (!courseId) return;
+
+    const unsubscribe = onSnapshot(firestoreDoc(db, "session", courseId), async (docSnap) => {
       if (!docSnap.exists()) {
         if (sessionStarted) {
           const totalPoints = questions.reduce((acc, q) => acc + q.points, 0);
@@ -94,7 +99,6 @@ const StudentScreen: React.FC = () => {
 
         const currentIndex = data.questionIndex;
 
-        // Only reset if instructor changed the question
         if (typeof currentIndex === "number" && currentIndex !== previousQuestionIndex.current) {
           previousQuestionIndex.current = currentIndex;
           setQuestionIndex(currentIndex);
@@ -106,7 +110,6 @@ const StudentScreen: React.FC = () => {
           if (container) container.scrollTop = 0;
         }
 
-        // Sync to showAnswer flag from instructor
         if (typeof data.showAnswer === "boolean") {
           const current = parsed[data.questionIndex];
           const noAnswer =
@@ -114,7 +117,6 @@ const StudentScreen: React.FC = () => {
             (Array.isArray(lastUserAnswer) && lastUserAnswer.length === 0);
 
           if (data.showAnswer) {
-            // If user didn’t answer, set the correct answer
             if (noAnswer) {
               if (current.type === "MCQ") {
                 setLastCorrectAnswer(current.answer);
@@ -129,7 +131,6 @@ const StudentScreen: React.FC = () => {
             }
             setStage("feedback");
           } else {
-            // Only allow going back to "question" if the user hasn't submitted
             if (noAnswer) {
               setStage("question");
             }
@@ -141,7 +142,7 @@ const StudentScreen: React.FC = () => {
     });
 
     return () => unsubscribe();
-  }, [navigate, questions, score, sessionStarted, lastUserAnswer]);
+  }, [navigate, questions, score, sessionStarted, lastUserAnswer, courseId]);
 
   const handleAnswer = (answer: string | string[]) => {
     const current = questions[questionIndex];
@@ -171,7 +172,7 @@ const StudentScreen: React.FC = () => {
     if (isCorrect) {
       setScore((prev) => prev + current.points);
     }
-    
+
     setStage("result");
   };
 
