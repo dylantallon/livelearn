@@ -1,64 +1,83 @@
-import { useLocation, useNavigate } from "react-router-dom"
-import { useState, useEffect, useContext } from "react"
+import { useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect, useContext } from "react";
 import {
   Box,
   Typography,
-} from "@mui/material"
+} from "@mui/material";
 
-import SessionCheckBox from "./Components/SessionCheckBox"
-import SessionRadio from "./Components/SessionRadio"
-import SessionText from "./Components/SessionText"
-import { ConfirmationDialog } from "./Components/Confirmation"
-import { doc, getDoc, deleteDoc, updateDoc } from "firebase/firestore"
-import { db } from "../firebase"
-import "./session.css"
-import Header from '../Components/Header'
-import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import MonitorIcon from '@mui/icons-material/Monitor';
+import SessionCheckBox from "./Components/SessionCheckBox";
+import SessionRadio from "./Components/SessionRadio";
+import SessionText from "./Components/SessionText";
+import { ConfirmationDialog } from "./Components/Confirmation";
+import {
+  doc,
+  getDoc,
+  deleteDoc,
+  updateDoc,
+  onSnapshot,
+} from "firebase/firestore";
+import { db } from "../firebase";
+import "./session.css";
+import Header from "../Components/Header";
+import NavigateBeforeIcon from "@mui/icons-material/NavigateBefore";
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import MonitorIcon from "@mui/icons-material/Monitor";
 import { AuthContext } from "../Components/AuthContext";
 
 interface Question {
-  id: string
-  type: "checkbox" | "radio" | "text"
-  title: string
-  choices?: string[]
-  images?: string[]
-  points?: number
-  answers?: string[]
+  id: string;
+  type: "checkbox" | "radio" | "text";
+  title: string;
+  choices?: string[];
+  images?: string[];
+  points?: number;
+  answers?: string[];
 }
 
 export default function Session() {
   const { courseId } = useContext(AuthContext);
-  const location = useLocation()
-  const { pollId } = location.state || {}
+  const location = useLocation();
+  const { pollId } = location.state || {};
 
-  const [questions, setQuestions] = useState<Question[]>([])
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
-  const [answerShown, setAnswerShown] = useState(false)
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [answerShown, setAnswerShown] = useState(false);
+  const [activeUsers, setActiveUsers] = useState<any[]>([]);
+  const [userAnswered, setUserAnswered] = useState<any[]>([]);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchPoll = async () => {
-      if (!pollId) return
+    const fetchPollAndWatchSession = async () => {
+      if (!pollId || !courseId) return;
 
       try {
-        const docRef = doc(db, "polls", pollId)
-        const docSnap = await getDoc(docRef)
+        const docRef = doc(db, "polls", pollId);
+        const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
-          const pollData = docSnap.data()
-          setQuestions(pollData.questions || [])
+          const pollData = docSnap.data();
+          setQuestions(pollData.questions || []);
         } else {
-          console.error("Poll not found")
+          console.error("Poll not found");
         }
+
+        const unsubscribe = onSnapshot(doc(db, "session", courseId), (sessionSnap) => {
+          if (sessionSnap.exists()) {
+            const data = sessionSnap.data();
+            setActiveUsers(data.activeUsers || []);
+            setUserAnswered(data.userAnswered || []);
+          }
+        });
+
+        return () => unsubscribe();
       } catch (error) {
-        console.error("Failed to fetch poll data:", error)
+        console.error("Failed to fetch data:", error);
       }
-    }
-    fetchPoll()
-  }, [pollId])
+    };
+
+    fetchPollAndWatchSession();
+  }, [pollId, courseId]);
 
   const updateSessionIndex = async (index: number) => {
     try {
@@ -80,22 +99,34 @@ export default function Session() {
     }
   };
 
-  const goToNextQuestion = () => {
+  const clearUserAnswered = async () => {
+    try {
+      await updateDoc(doc(db, "session", courseId), {
+        userAnswered: [],
+      });
+    } catch (err) {
+      console.error("Failed to clear userAnswered array:", err);
+    }
+  };
+
+  const goToNextQuestion = async () => {
     if (currentQuestionIndex < questions.length - 1) {
       const newIndex = currentQuestionIndex + 1;
       setCurrentQuestionIndex(newIndex);
-      updateSessionIndex(newIndex);
-      resetShowAnswer();
+      await updateSessionIndex(newIndex);
+      await resetShowAnswer();
+      await clearUserAnswered();
       setAnswerShown(false);
     }
   };
 
-  const goToPreviousQuestion = () => {
+  const goToPreviousQuestion = async () => {
     if (currentQuestionIndex > 0) {
       const newIndex = currentQuestionIndex - 1;
       setCurrentQuestionIndex(newIndex);
-      updateSessionIndex(newIndex);
-      resetShowAnswer();
+      await updateSessionIndex(newIndex);
+      await resetShowAnswer();
+      await clearUserAnswered();
       setAnswerShown(false);
     }
   };
@@ -149,7 +180,15 @@ export default function Session() {
       <Header />
       <div className="question-session-container">
         <Box className="session-inner">
-          <div className="sticky-question-header" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", paddingBottom: "1rem" }}>
+          <div
+            className="sticky-question-header"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              paddingBottom: "1rem",
+            }}
+          >
             <Typography
               variant="h5"
               fontWeight="bold"
@@ -159,14 +198,18 @@ export default function Session() {
               Question {currentQuestionIndex + 1}/{questions.length}:
             </Typography>
             <div className="session-nav-buttons">
-            <button
-              onClick={() => window.open("/display", "_blank")}
-              className="nav-button"
-              title="Display Questions"
-              style={{ padding: "0.5rem", color: "white", backgroundColor: "#007bff" }}
-            >
-              <MonitorIcon fontSize="medium" />
-            </button>
+              <button
+                onClick={() => window.open("/display", "_blank")}
+                className="nav-button"
+                title="Display Questions"
+                style={{
+                  padding: "0.5rem",
+                  color: "white",
+                  backgroundColor: "#007bff",
+                }}
+              >
+                <MonitorIcon fontSize="medium" />
+              </button>
               <button
                 onClick={goToPreviousQuestion}
                 disabled={currentQuestionIndex === 0}
@@ -221,7 +264,9 @@ export default function Session() {
 
           <Box className="session-controls">
             <div className="session-left-buttons">
-              <div className="answered-div">3/100 Answered</div>
+              <div className="answered-div">
+                {userAnswered.length}/{activeUsers.length} Answered
+              </div>
               <button className="answer-button" onClick={toggleAnswerShown}>
                 {answerShown ? "Hide Answer" : "Show Answer"}
               </button>

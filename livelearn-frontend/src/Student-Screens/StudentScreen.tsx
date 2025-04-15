@@ -4,6 +4,8 @@ import {
   getDoc,
   doc as firestoreDoc,
   onSnapshot,
+  updateDoc,
+  arrayUnion,
 } from "firebase/firestore";
 
 import { AuthContext } from "../Components/AuthContext";
@@ -20,7 +22,6 @@ import CheckboxResult from "./CheckboxResult";
 import CheckboxFeedback from "./CheckboxFeedback";
 import Header from "../Components/Header";
 
-// Modified FinalScreen component that accepts props directly
 const FinalScreenWrapper: React.FC<{ score: number; total: number }> = ({ score, total }) => {
   return (
     <div className="loading-container">
@@ -40,7 +41,7 @@ const FinalScreenWrapper: React.FC<{ score: number; total: number }> = ({ score,
 };
 
 const StudentScreen: React.FC = () => {
-  const { courseId } = useContext(AuthContext);
+  const { courseId, user } = useContext(AuthContext);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
   const [sessionStarted, setSessionStarted] = useState(false);
@@ -66,20 +67,14 @@ const StudentScreen: React.FC = () => {
     const unsubscribe = onSnapshot(firestoreDoc(db, "session", courseId), async (docSnap) => {
       if (!docSnap.exists()) {
         if (sessionStarted) {
-          // Make sure we have scores for all questions
           const updatedScores = [...questionScores];
           while (updatedScores.length < questions.length) {
-            updatedScores.push(0); // Add zeros for missing scores
+            updatedScores.push(0);
           }
-          
           const totalScore = updatedScores.reduce((sum, val) => sum + (val || 0), 0);
           const totalPoints = questions.reduce((sum, q) => sum + q.points, 0);
-          
-          // Set state to show final screen
           setFinalScore({ score: totalScore, total: totalPoints });
           setSessionEnded(true);
-          
-          // Reset lastPollId to detect new sessions
           lastPollId.current = null;
         }
         return;
@@ -88,9 +83,7 @@ const StudentScreen: React.FC = () => {
       const data = docSnap.data();
       if (!data?.pollId) return;
 
-      // Check if this is a new poll after a session ended
       if (sessionEnded && data.pollId !== lastPollId.current) {
-        // Reset session state for new poll
         setSessionEnded(false);
         setLoading(true);
         setQuestionScores([]);
@@ -100,7 +93,6 @@ const StudentScreen: React.FC = () => {
         setStage("question");
       }
 
-      // Update lastPollId reference
       lastPollId.current = data.pollId;
 
       try {
@@ -149,68 +141,57 @@ const StudentScreen: React.FC = () => {
           return alreadySet ? prev : parsed;
         });
 
-        const currentIndex = data.questionIndex;
+        // 🔹 Add user to activeUsers when session starts
+        if (user?.uid) {
+          const sessionRef = firestoreDoc(db, "session", courseId);
+          await updateDoc(sessionRef, {
+            activeUsers: arrayUnion(user.uid),
+          });
+        }
 
+        const currentIndex = data.questionIndex;
         if (typeof currentIndex === "number" && currentIndex !== previousQuestionIndex.current) {
           previousQuestionIndex.current = currentIndex;
           setQuestionIndex(currentIndex);
           setStage("question");
           setLastUserAnswer("");
           setLastCorrectAnswer("");
-
           const container = document.querySelector(".main-container");
           if (container) container.scrollTop = 0;
         }
 
         if (typeof data.showAnswer === "boolean") {
           const current = parsed[data.questionIndex];
-          const noAnswer = 
-            lastUserAnswer === "" || 
+          const noAnswer =
+            lastUserAnswer === "" ||
             (Array.isArray(lastUserAnswer) && lastUserAnswer.length === 0);
 
           if (data.showAnswer) {
-            // When the teacher shows answer
             if (current) {
-              // Always set the correct answer for all question types
-              // This is the key fix - moved these lines outside the noAnswer condition
               if (current.type === "MCQ") {
-                console.log("Setting MCQ correct answer:", current.answer);
                 setLastCorrectAnswer(current.answer);
               } else if (current.type === "FRQ") {
-                console.log("Setting FRQ correct answer:", current.acceptedAnswers.join(", "));
                 setLastCorrectAnswer(current.acceptedAnswers.join(", "));
               } else if (current.type === "Checkbox") {
-                console.log("Setting Checkbox correct answers:", current.answers.join(", "));
                 setLastCorrectAnswer(current.answers.join(", "));
               }
-              
-              // If no answer, set the user answer and update scores
+
               if (noAnswer) {
-                // Set default user answer based on question type
-                if (current.type === "MCQ") {
-                  setLastUserAnswer("");
-                } else if (current.type === "FRQ") {
-                  setLastUserAnswer("");
-                } else if (current.type === "Checkbox") {
-                  setLastUserAnswer([]);
-                }
-                
-                // Update scores for unanswered questions
-                setQuestionScores(prev => {
+                if (current.type === "MCQ") setLastUserAnswer("");
+                else if (current.type === "FRQ") setLastUserAnswer("");
+                else if (current.type === "Checkbox") setLastUserAnswer([]);
+
+                setQuestionScores((prev) => {
                   const updated = [...prev];
-                  while (updated.length <= data.questionIndex) {
-                    updated.push(0);
-                  }
+                  while (updated.length <= data.questionIndex) updated.push(0);
                   updated[data.questionIndex] = 0;
                   return updated;
                 });
               }
             }
-            
-            // Always transition to feedback stage when showAnswer is true
+
             setStage("feedback");
           } else {
-            // When teacher hides answer
             if (noAnswer) {
               setStage("question");
             }
@@ -222,9 +203,10 @@ const StudentScreen: React.FC = () => {
     });
 
     return () => unsubscribe();
-  }, [questions, sessionStarted, lastUserAnswer, courseId, questionScores, sessionEnded]);
+  }, [questions, sessionStarted, lastUserAnswer, courseId, questionScores, sessionEnded, user]);
 
-  const handleAnswer = (answer: string | string[]) => {
+  // 🔹 Make this async so we can use await
+  const handleAnswer = async (answer: string | string[]) => {
     const current = questions[questionIndex];
     let isCorrect = false;
 
@@ -255,6 +237,14 @@ const StudentScreen: React.FC = () => {
       return updated;
     });
 
+    // 🔹 Add user to userAnswered array when they submit an answer
+    if (user?.uid) {
+      const sessionRef = firestoreDoc(db, "session", courseId);
+      await updateDoc(sessionRef, {
+        userAnswered: arrayUnion(user.uid),
+      });
+    }
+
     setStage("result");
   };
 
@@ -267,16 +257,13 @@ const StudentScreen: React.FC = () => {
       const container = document.querySelector(".main-container");
       if (container) container.scrollTop = 0;
     } else {
-      // Make sure we have scores for all questions
       const updatedScores = [...questionScores];
       while (updatedScores.length < questions.length) {
-        updatedScores.push(0); // Add zeros for missing scores
+        updatedScores.push(0);
       }
-      
+
       const totalScore = updatedScores.reduce((sum, val) => sum + (val || 0), 0);
       const totalPoints = questions.reduce((sum, q) => sum + q.points, 0);
-      
-      // Instead of navigating, set state to show final screen
       setFinalScore({ score: totalScore, total: totalPoints });
       setSessionEnded(true);
     }
@@ -284,7 +271,6 @@ const StudentScreen: React.FC = () => {
 
   const handleShowAnswer = () => setStage("feedback");
 
-  // Render the final screen if session has ended
   if (sessionEnded) {
     return <FinalScreenWrapper score={finalScore.score} total={finalScore.total} />;
   }
@@ -338,12 +324,11 @@ const StudentScreen: React.FC = () => {
         />
       );
     if (stage === "feedback") {
-      console.log("Rendering MCQ Feedback with correct answer:", lastCorrectAnswer);
       return (
         <Feedback
           question={currentQuestion}
           userAnswer={lastUserAnswer as string}
-          correctAnswer={lastCorrectAnswer || currentQuestion.answer} // Fallback to question.answer if needed
+          correctAnswer={lastCorrectAnswer || currentQuestion.answer}
           onNext={handleNext}
         />
       );
