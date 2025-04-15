@@ -41,7 +41,6 @@ const FinalScreenWrapper: React.FC<{ score: number; total: number }> = ({ score,
 
 const StudentScreen: React.FC = () => {
   const { courseId } = useContext(AuthContext);
-
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
   const [sessionStarted, setSessionStarted] = useState(false);
@@ -49,7 +48,6 @@ const StudentScreen: React.FC = () => {
   const [questionIndex, setQuestionIndex] = useState(0);
   const [stage, setStage] = useState<"question" | "result" | "feedback">("question");
   const [questionScores, setQuestionScores] = useState<number[]>([]);
-  const [, setUserAnswers] = useState<(string | string[])[]>([]);
   const [lastUserAnswer, setLastUserAnswer] = useState<string | string[]>(``);
   const [lastCorrectAnswer, setLastCorrectAnswer] = useState<string>("");
   const [finalScore, setFinalScore] = useState({ score: 0, total: 0 });
