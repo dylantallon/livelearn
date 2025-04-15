@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
 import { db } from "../firebase";
 import {
   getDoc,
@@ -21,21 +20,42 @@ import CheckboxResult from "./CheckboxResult";
 import CheckboxFeedback from "./CheckboxFeedback";
 import Header from "../Components/Header";
 
+// Modified FinalScreen component that accepts props directly
+const FinalScreenWrapper: React.FC<{ score: number; total: number }> = ({ score, total }) => {
+  return (
+    <div className="loading-container">
+      <Header />
+      <div className="default2">
+        <svg width="600" height="400" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 2h12v4a6 6 0 01-6 6 6 6 0 01-6-6V2zm0 20h12v-4a6 6 0 00-6-6 6 6 0 00-6 6v4z" fill="#6366F1" />
+          <path d="M6 2h12v4a6 6 0 01-6 6 6 6 0 01-6-6V2z" fill="#6366F1" />
+          <path d="M6 22h12v-4a6 6 0 00-6-6 6 6 0 00-6 6v4z" fill="#FBBF24" />
+        </svg>
+        <p className="default3" style={{ fontSize: '3rem' }}>
+          Your Score: {score} / {total}
+        </p>
+      </div>
+    </div>
+  );
+};
+
 const StudentScreen: React.FC = () => {
-  const navigate = useNavigate();
   const { courseId } = useContext(AuthContext);
 
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
   const [sessionStarted, setSessionStarted] = useState(false);
+  const [sessionEnded, setSessionEnded] = useState(false);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [stage, setStage] = useState<"question" | "result" | "feedback">("question");
-  const [score, setScore] = useState(0);
+  const [questionScores, setQuestionScores] = useState<number[]>([]);
   const [, setUserAnswers] = useState<(string | string[])[]>([]);
   const [lastUserAnswer, setLastUserAnswer] = useState<string | string[]>(``);
   const [lastCorrectAnswer, setLastCorrectAnswer] = useState<string>("");
+  const [finalScore, setFinalScore] = useState({ score: 0, total: 0 });
 
   const previousQuestionIndex = useRef<number>(-1);
+  const lastPollId = useRef<string | null>(null);
 
   type Question =
     | { type: "MCQ"; question: string; options: string[]; answer: string; image?: string; points: number }
@@ -48,14 +68,42 @@ const StudentScreen: React.FC = () => {
     const unsubscribe = onSnapshot(firestoreDoc(db, "session", courseId), async (docSnap) => {
       if (!docSnap.exists()) {
         if (sessionStarted) {
-          const totalPoints = questions.reduce((acc, q) => acc + q.points, 0);
-          navigate("/finished", { state: { score, total: totalPoints } });
+          // Make sure we have scores for all questions
+          const updatedScores = [...questionScores];
+          while (updatedScores.length < questions.length) {
+            updatedScores.push(0); // Add zeros for missing scores
+          }
+          
+          const totalScore = updatedScores.reduce((sum, val) => sum + (val || 0), 0);
+          const totalPoints = questions.reduce((sum, q) => sum + q.points, 0);
+          
+          // Set state to show final screen
+          setFinalScore({ score: totalScore, total: totalPoints });
+          setSessionEnded(true);
+          
+          // Reset lastPollId to detect new sessions
+          lastPollId.current = null;
         }
         return;
       }
 
       const data = docSnap.data();
       if (!data?.pollId) return;
+
+      // Check if this is a new poll after a session ended
+      if (sessionEnded && data.pollId !== lastPollId.current) {
+        // Reset session state for new poll
+        setSessionEnded(false);
+        setLoading(true);
+        setQuestionScores([]);
+        setLastUserAnswer("");
+        setLastCorrectAnswer("");
+        setQuestionIndex(0);
+        setStage("question");
+      }
+
+      // Update lastPollId reference
+      lastPollId.current = data.pollId;
 
       try {
         const pollDocSnap = await getDoc(firestoreDoc(db, "polls", data.pollId));
@@ -96,7 +144,12 @@ const StudentScreen: React.FC = () => {
 
         setSessionStarted(true);
         setLoading(false);
-        setQuestions((prev) => (prev.length === 0 ? parsed : prev));
+        setQuestions((prev) => {
+          const alreadySet =
+            prev.length === parsed.length &&
+            prev.every((q, i) => JSON.stringify(q) === JSON.stringify(parsed[i]));
+          return alreadySet ? prev : parsed;
+        });
 
         const currentIndex = data.questionIndex;
 
@@ -113,25 +166,43 @@ const StudentScreen: React.FC = () => {
 
         if (typeof data.showAnswer === "boolean") {
           const current = parsed[data.questionIndex];
-          const noAnswer =
-            lastUserAnswer === "" ||
+          const noAnswer = 
+            lastUserAnswer === "" || 
             (Array.isArray(lastUserAnswer) && lastUserAnswer.length === 0);
 
           if (data.showAnswer) {
-            if (noAnswer) {
-              if (current.type === "MCQ") {
-                setLastCorrectAnswer(current.answer);
-                setLastUserAnswer("");
-              } else if (current.type === "FRQ") {
-                setLastCorrectAnswer(current.acceptedAnswers.join(", "));
-                setLastUserAnswer("");
-              } else if (current.type === "Checkbox") {
-                setLastCorrectAnswer(current.answers.join(", "));
-                setLastUserAnswer([]);
+            // When the teacher shows answer
+            if (current) {
+              if (noAnswer) {
+                // If no answer was submitted, set score to 0 for this question
+                setQuestionScores(prev => {
+                  const updated = [...prev];
+                  // Make sure the array has enough elements by filling with zeros if needed
+                  while (updated.length <= data.questionIndex) {
+                    updated.push(0);
+                  }
+                  updated[data.questionIndex] = 0;  // Score is 0 if no answer
+                  return updated;
+                });
+                
+                // Set default values based on question type
+                if (current.type === "MCQ") {
+                  setLastCorrectAnswer(current.answer);
+                  setLastUserAnswer("");
+                } else if (current.type === "FRQ") {
+                  setLastCorrectAnswer(current.acceptedAnswers.join(", "));
+                  setLastUserAnswer("");
+                } else if (current.type === "Checkbox") {
+                  setLastCorrectAnswer(current.answers.join(", "));
+                  setLastUserAnswer([]);
+                }
               }
             }
+            
+            // Always transition to feedback stage when showAnswer is true
             setStage("feedback");
           } else {
+            // When teacher hides answer
             if (noAnswer) {
               setStage("question");
             }
@@ -143,7 +214,7 @@ const StudentScreen: React.FC = () => {
     });
 
     return () => unsubscribe();
-  }, [navigate, questions, score, sessionStarted, lastUserAnswer, courseId]);
+  }, [questions, sessionStarted, lastUserAnswer, courseId, questionScores, sessionEnded]);
 
   const handleAnswer = (answer: string | string[]) => {
     const current = questions[questionIndex];
@@ -170,9 +241,11 @@ const StudentScreen: React.FC = () => {
       setLastCorrectAnswer(current.answers.join(", "));
     }
 
-    if (isCorrect) {
-      setScore((prev) => prev + current.points);
-    }
+    setQuestionScores((prev) => {
+      const updated = [...prev];
+      updated[questionIndex] = isCorrect ? current.points : 0;
+      return updated;
+    });
 
     setStage("result");
   };
@@ -186,12 +259,27 @@ const StudentScreen: React.FC = () => {
       const container = document.querySelector(".main-container");
       if (container) container.scrollTop = 0;
     } else {
-      const totalPoints = questions.reduce((acc, q) => acc + q.points, 0);
-      navigate("/finished", { state: { score, total: totalPoints } });
+      // Make sure we have scores for all questions
+      const updatedScores = [...questionScores];
+      while (updatedScores.length < questions.length) {
+        updatedScores.push(0); // Add zeros for missing scores
+      }
+      
+      const totalScore = updatedScores.reduce((sum, val) => sum + (val || 0), 0);
+      const totalPoints = questions.reduce((sum, q) => sum + q.points, 0);
+      
+      // Instead of navigating, set state to show final screen
+      setFinalScore({ score: totalScore, total: totalPoints });
+      setSessionEnded(true);
     }
   };
 
   const handleShowAnswer = () => setStage("feedback");
+
+  // Render the final screen if session has ended
+  if (sessionEnded) {
+    return <FinalScreenWrapper score={finalScore.score} total={finalScore.total} />;
+  }
 
   if (loading) {
     return (

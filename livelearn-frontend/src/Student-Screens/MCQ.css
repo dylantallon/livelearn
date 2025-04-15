@@ -3,14 +3,13 @@ html, body {
   margin: 0;
   padding: 0;
   height: 100%;
-  overflow: hidden; /* block global scrolling */
 }
 
 /* Ensure the container takes up the entire screen */
 .mcontainer {
   display: flex;
   flex-direction: column;
-  height: 100vh; /* Full viewport height */
+  height: 85vh; /* Full viewport height */
   width: 100vw;
   background-color: #2f2b2b;
   overflow: hidden;
@@ -33,8 +32,7 @@ html, body {
   padding: 20px;
   gap: 0.5rem;
   max-height: calc(100vh - 80px); /* fits in screen */
-  overflow-y: auto;               /* ✅ only scroll if content is tall */
-  overflow-x: hidden;
+  overflow: auto;
 
 }
 
@@ -123,17 +121,13 @@ html, body {
   width: 100%;
   max-width: 800px;     
   margin: 1rem 0;
-  max-height: 350px;
-  overflow: hidden; /* ✅ prevents overflow */
 }
 
 .question-image {
   width: 100%;
-  height: 100%;              
-  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.15);
-  object-fit: contain;
-  display: block;
-  border-radius: 12px;       /* ✅ adds nice curves */           /* ✅ creates space inside box */
+  height: auto;
+  box-shadow: 3px 3px 10px #00000026;
+  object-fit: contain;    /* ✅ adds nice curves */           /* ✅ creates space inside box */
 }
 
 /* .selected-answer {
