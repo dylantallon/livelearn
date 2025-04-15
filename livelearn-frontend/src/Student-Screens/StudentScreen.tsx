@@ -171,29 +171,39 @@ const StudentScreen: React.FC = () => {
           if (data.showAnswer) {
             // When the teacher shows answer
             if (current) {
+              // Always set the correct answer for all question types
+              // This is the key fix - moved these lines outside the noAnswer condition
+              if (current.type === "MCQ") {
+                console.log("Setting MCQ correct answer:", current.answer);
+                setLastCorrectAnswer(current.answer);
+              } else if (current.type === "FRQ") {
+                console.log("Setting FRQ correct answer:", current.acceptedAnswers.join(", "));
+                setLastCorrectAnswer(current.acceptedAnswers.join(", "));
+              } else if (current.type === "Checkbox") {
+                console.log("Setting Checkbox correct answers:", current.answers.join(", "));
+                setLastCorrectAnswer(current.answers.join(", "));
+              }
+              
+              // If no answer, set the user answer and update scores
               if (noAnswer) {
-                // If no answer was submitted, set score to 0 for this question
+                // Set default user answer based on question type
+                if (current.type === "MCQ") {
+                  setLastUserAnswer("");
+                } else if (current.type === "FRQ") {
+                  setLastUserAnswer("");
+                } else if (current.type === "Checkbox") {
+                  setLastUserAnswer([]);
+                }
+                
+                // Update scores for unanswered questions
                 setQuestionScores(prev => {
                   const updated = [...prev];
-                  // Make sure the array has enough elements by filling with zeros if needed
                   while (updated.length <= data.questionIndex) {
                     updated.push(0);
                   }
-                  updated[data.questionIndex] = 0;  // Score is 0 if no answer
+                  updated[data.questionIndex] = 0;
                   return updated;
                 });
-                
-                // Set default values based on question type
-                if (current.type === "MCQ") {
-                  setLastCorrectAnswer(current.answer);
-                  setLastUserAnswer("");
-                } else if (current.type === "FRQ") {
-                  setLastCorrectAnswer(current.acceptedAnswers.join(", "));
-                  setLastUserAnswer("");
-                } else if (current.type === "Checkbox") {
-                  setLastCorrectAnswer(current.answers.join(", "));
-                  setLastUserAnswer([]);
-                }
               }
             }
             
@@ -327,15 +337,17 @@ const StudentScreen: React.FC = () => {
           onNext={handleNext}
         />
       );
-    if (stage === "feedback")
+    if (stage === "feedback") {
+      console.log("Rendering MCQ Feedback with correct answer:", lastCorrectAnswer);
       return (
         <Feedback
           question={currentQuestion}
           userAnswer={lastUserAnswer as string}
-          correctAnswer={lastCorrectAnswer}
+          correctAnswer={lastCorrectAnswer || currentQuestion.answer} // Fallback to question.answer if needed
           onNext={handleNext}
         />
       );
+    }
   }
 
   if (currentQuestion.type === "FRQ") {
