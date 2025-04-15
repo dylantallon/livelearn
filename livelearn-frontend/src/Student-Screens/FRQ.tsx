@@ -14,10 +14,10 @@ interface FRQProps {
   onNext: () => void;
 }
 
-const FRQ: React.FC<FRQProps> = ({ question, onSubmit, onShowAnswer, onNext }) => {
+const FRQ: React.FC<FRQProps> = ({ question, onSubmit,}) => {
   const hasImage = !!question.image;
   const [input, setInput] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  const [, setSubmitted] = useState(false);
   const location = useLocation();
   const isDisplay = location.pathname === "/display";
 
@@ -63,7 +63,6 @@ const FRQ: React.FC<FRQProps> = ({ question, onSubmit, onShowAnswer, onNext }) =
 
         {!isDisplay && (
           <div className="button-row-bottom">
-            {!submitted ? (
               <button
                 className="next-btn"
                 onClick={handleSubmit}
@@ -71,16 +70,6 @@ const FRQ: React.FC<FRQProps> = ({ question, onSubmit, onShowAnswer, onNext }) =
               >
                 Submit
               </button>
-            ) : (
-              <>
-                <button className="next-btn" onClick={onShowAnswer}>
-                  Show Answer
-                </button>
-                <button className="next-btn" onClick={onNext}>
-                  Next Question
-                </button>
-              </>
-            )}
           </div>
         )}
       </div>
