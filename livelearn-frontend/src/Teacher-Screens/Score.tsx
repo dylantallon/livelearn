@@ -47,12 +47,8 @@ function Score() {
 
         scoreDocs.forEach((docSnap) => {
           const data = docSnap.data();
-          const questions = data.questions || [];
 
-          let earnedPoints = 0;
-          for (let q of questions) {
-            earnedPoints += q.points || 0;
-          }
+          const earnedPoints = data.points ?? 0;
 
           studentScores.push({
             name: docSnap.id, // Or replace with actual name field if stored
