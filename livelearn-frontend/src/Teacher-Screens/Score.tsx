@@ -1,57 +1,102 @@
 import "./Score.css";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Header from "../Components/Header";
+import { Typography } from "@mui/material";
+import { useEffect, useState } from "react";
+import { db } from "../firebase";
+import {
+  doc,
+  getDoc,
+  collection,
+  getDocs
+} from "firebase/firestore";
+
+interface StudentScore {
+  name: string;
+  score: string;
+}
 
 function Score() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const pollId = location.state?.pollId;
 
-    const students = [
-        { id: 1, name: 'Student Name', score: '10/10' },
-        { id: 2, name: 'Student Name', score: '10/10' },
-        { id: 3, name: 'Student Name', score: '10/10' },
-        { id: 4, name: 'Student Name', score: '10/10' },
-        { id: 5, name: 'Student Name', score: '10/10' },
-        { id: 6, name: 'Student Name', score: '10/10' },
-        { id: 7, name: 'Student Name', score: '10/10' },
-        { id: 8, name: 'Student Name', score: '10/10' },
-        { id: 9, name: 'Student Name', score: '10/10' },
-        { id: 10, name: 'Student Name', score: '10/10' },
-        { id: 11, name: 'Student Name', score: '10/10' },
-        { id: 12, name: 'Student Name', score: '10/10' },
-        { id: 13, name: 'Student Name', score: '10/10' },
-        { id: 14, name: 'Student Name', score: '10/10' },
-        { id: 15, name: 'Student Name', score: '10/10' },
-        { id: 16, name: 'Student Name', score: '10/10' },
-        { id: 17, name: 'Student Name', score: '10/10' },
-        { id: 18, name: 'Student Name', score: '10/10' },
-        { id: 19, name: 'Student Name', score: '10/10' },
-        { id: 20, name: 'Student Name', score: '10/10' },
-      ];
+  const [students, setStudents] = useState<StudentScore[]>([]);
+  const [loading, setLoading] = useState(true);
 
-    const handleBackClick = () => {
-      navigate(-1);
+  const handleBackClick = () => {
+    navigate(-1);
+  };
+
+  useEffect(() => {
+    const fetchScores = async () => {
+      if (!pollId) return;
+
+      try {
+        // Get total poll points
+        const pollRef = doc(db, "polls", pollId);
+        const pollSnap = await getDoc(pollRef);
+        const totalPoints = pollSnap.data()?.points ?? 0;
+
+        // Get all student documents in scores subcollection
+        const scoresRef = collection(db, "polls", pollId, "scores");
+        const scoreDocs = await getDocs(scoresRef);
+
+        const studentScores: StudentScore[] = [];
+
+        scoreDocs.forEach((docSnap) => {
+          const data = docSnap.data();
+          const questions = data.questions || [];
+
+          let earnedPoints = 0;
+          for (let q of questions) {
+            earnedPoints += q.points || 0;
+          }
+
+          studentScores.push({
+            name: docSnap.id, // Or replace with actual name field if stored
+            score: `${earnedPoints}/${totalPoints}`
+          });
+        });
+
+        setStudents(studentScores);
+      } catch (error) {
+        console.error("Error fetching scores:", error);
+      } finally {
+        setLoading(false);
+      }
     };
-  
-    return (
-      <div className="app-container">
-        <Header/>
-        <ArrowBackIcon className="btn-back" onClick={handleBackClick}/>
-        <div className="score-list">
-          {students.map((student) => (
-            <div key={student.id} className="survey-score-row">
+
+    fetchScores();
+  }, [pollId]);
+
+  return (
+    <div className="app-container">
+      <Header />
+      <ArrowBackIcon className="btn-back" onClick={handleBackClick} />
+      <div className="score-list">
+        {!loading && students.length > 0 ? (
+          students.map((student) => (
+            <div className="survey-score-row" key={student.name}>
               <div className="student-name">
                 {student.name}
               </div>
               <div className="student-score">
-                Score: {student.score} 
+                Score: {student.score}
               </div>
             </div>
-          ))}
-        </div>
+          ))
+        ) : (
+          <div className="empty-poll-state">
+            <Typography variant="body1" color="text.secondary" sx={{ my: 4 }}>
+              {loading ? "Loading..." : "No scores available at this time."}
+            </Typography>
+          </div>
+        )}
       </div>
-    );
-  }
-  
-  export default Score;
-  
+    </div>
+  );
+}
+
+export default Score;

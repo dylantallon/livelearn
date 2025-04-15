@@ -1,3 +1,4 @@
+// Poll.tsx
 import { useNavigate } from 'react-router-dom';
 import { useContext, useEffect, useState } from 'react';
 import { Typography } from '@mui/material';
@@ -37,6 +38,7 @@ function Poll() {
     questions: Question[];
     graded: boolean;
     completion: boolean;
+    points: number;
   }
 
   const navigate = useNavigate();
@@ -44,11 +46,13 @@ function Poll() {
 
   const [selectedPollId, setSelectedPollId] = useState<string | null>(null);
   const [polls, setPolls] = useState<Poll[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchPolls = async () => {
       if (!courseId) return;
 
+      setLoading(true);
       try {
         const pollsRef = collection(db, "polls");
         const q = query(pollsRef, where("courseId", "==", courseId));
@@ -60,6 +64,8 @@ function Poll() {
         setPolls(data);
       } catch (err) {
         console.error("Failed to load surveys:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -74,7 +80,8 @@ function Poll() {
       questions: [],
       courseId: courseId,
       graded: false,
-      completion: false
+      completion: false,
+      points: 0
     };
 
     try {
@@ -95,7 +102,9 @@ function Poll() {
     }
   };
 
-  const handleScoreClick = () => navigate('/scores');
+  const handleScoreClick = (poll: Poll) => {
+    navigate('/scores', { state: { pollId: poll.id } });
+  };
 
   const handleEditClick = (poll: Poll) => {
     navigate('/edit', { state: { pollId: poll.id } });
@@ -158,7 +167,13 @@ function Poll() {
             </button>
           </div>
         </div>
-        {polls.length > 0 ? (
+        {loading ? (
+          <div className="empty-poll-state">
+            <Typography variant="body1" color="text.secondary" sx={{ my: 4 }}>
+              Loading...
+            </Typography>
+          </div>
+        ) : polls.length > 0 ? (
           polls.map((poll) => (
             <div
               key={poll.id}
@@ -171,7 +186,7 @@ function Poll() {
                 <button onClick={() => handleEditClick(poll)} className="btn-edit">
                   <EditIcon fontSize='inherit' /> Edit
                 </button>
-                <button onClick={handleScoreClick} className="btn-view-scores">
+                <button onClick={() => handleScoreClick(poll)} className="btn-view-scores">
                   View Scores
                 </button>
                 <ConfirmationDialog
