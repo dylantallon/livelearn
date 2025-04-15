@@ -41,7 +41,6 @@ export default function Session() {
 
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answerShown, setAnswerShown] = useState(false);
   const [activeUsers, setActiveUsers] = useState<any[]>([]);
   const [userAnswered, setUserAnswered] = useState<any[]>([]);
 
@@ -79,16 +78,6 @@ export default function Session() {
     fetchPollAndWatchSession();
   }, [pollId, courseId]);
 
-  const updateSessionIndex = async (index: number) => {
-    try {
-      await updateDoc(doc(db, "session", courseId), {
-        questionIndex: index,
-      });
-    } catch (err) {
-      console.error("Failed to update question index:", err);
-    }
-  };
-
   const resetShowAnswer = async () => {
     try {
       await updateDoc(doc(db, "session", courseId), {
@@ -96,6 +85,16 @@ export default function Session() {
       });
     } catch (err) {
       console.error("Failed to reset showAnswer:", err);
+    }
+  };
+
+  const updateSessionIndex = async (index: number) => {
+    try {
+      await updateDoc(doc(db, "session", courseId), {
+        questionIndex: index,
+      });
+    } catch (err) {
+      console.error("Failed to update question index:", err);
     }
   };
 
@@ -112,22 +111,20 @@ export default function Session() {
   const goToNextQuestion = async () => {
     if (currentQuestionIndex < questions.length - 1) {
       const newIndex = currentQuestionIndex + 1;
-      setCurrentQuestionIndex(newIndex);
-      await updateSessionIndex(newIndex);
       await resetShowAnswer();
+      await updateSessionIndex(newIndex);
       await clearUserAnswered();
-      setAnswerShown(false);
+      setCurrentQuestionIndex(newIndex);
     }
   };
 
   const goToPreviousQuestion = async () => {
     if (currentQuestionIndex > 0) {
       const newIndex = currentQuestionIndex - 1;
-      setCurrentQuestionIndex(newIndex);
-      await updateSessionIndex(newIndex);
       await resetShowAnswer();
+      await updateSessionIndex(newIndex);
       await clearUserAnswered();
-      setAnswerShown(false);
+      setCurrentQuestionIndex(newIndex);
     }
   };
 
@@ -135,15 +132,13 @@ export default function Session() {
     navigate(-1);
   };
 
-  const toggleAnswerShown = async () => {
-    const newShown = !answerShown;
-    setAnswerShown(newShown);
+  const showAnswer = async () => {
     try {
       await updateDoc(doc(db, "session", courseId), {
-        showAnswer: newShown,
+        showAnswer: true,
       });
     } catch (err) {
-      console.error("Failed to update showAnswer:", err);
+      console.error("Failed to show answer:", err);
     }
   };
 
@@ -267,8 +262,8 @@ export default function Session() {
               <div className="answered-div">
                 {userAnswered.length}/{activeUsers.length} Answered
               </div>
-              <button className="answer-button" onClick={toggleAnswerShown}>
-                {answerShown ? "Hide Answer" : "Show Answer"}
+              <button className="answer-button" onClick={showAnswer}>
+                Show Answer
               </button>
             </div>
             <div className="session-right-buttons">

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useContext } from "react";
+import { useLocation } from "react-router-dom";
 import { db } from "../firebase";
 import {
   getDoc,
@@ -42,6 +43,9 @@ const FinalScreenWrapper: React.FC<{ score: number; total: number }> = ({ score,
 
 const StudentScreen: React.FC = () => {
   const { courseId, user } = useContext(AuthContext);
+  const location = useLocation();
+  const isDisplay = location.pathname === "/display";
+
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
   const [sessionStarted, setSessionStarted] = useState(false);
@@ -141,8 +145,7 @@ const StudentScreen: React.FC = () => {
           return alreadySet ? prev : parsed;
         });
 
-        // 🔹 Add user to activeUsers when session starts
-        if (user?.uid) {
+        if (!isDisplay && user?.uid) {
           const sessionRef = firestoreDoc(db, "session", courseId);
           await updateDoc(sessionRef, {
             activeUsers: arrayUnion(user.uid),
@@ -205,7 +208,6 @@ const StudentScreen: React.FC = () => {
     return () => unsubscribe();
   }, [questions, sessionStarted, lastUserAnswer, courseId, questionScores, sessionEnded, user]);
 
-  // 🔹 Make this async so we can use await
   const handleAnswer = async (answer: string | string[]) => {
     const current = questions[questionIndex];
     let isCorrect = false;
@@ -237,7 +239,6 @@ const StudentScreen: React.FC = () => {
       return updated;
     });
 
-    // 🔹 Add user to userAnswered array when they submit an answer
     if (user?.uid) {
       const sessionRef = firestoreDoc(db, "session", courseId);
       await updateDoc(sessionRef, {
@@ -272,6 +273,33 @@ const StudentScreen: React.FC = () => {
   const handleShowAnswer = () => setStage("feedback");
 
   if (sessionEnded) {
+    if (isDisplay) {
+      return (
+        <div
+            style={{
+              height: "100vh",
+              backgroundColor: "#2f2b2b",
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <Header />
+            <div
+              style={{
+                flex: 1,
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                color: "white",
+                fontSize: "1.5rem",
+              }}
+            >
+              <div style={{fontSize: "3rem"}}>Session Ended...</div>
+            </div>
+          </div>
+      );
+    }
     return <FinalScreenWrapper score={finalScore.score} total={finalScore.total} />;
   }
 

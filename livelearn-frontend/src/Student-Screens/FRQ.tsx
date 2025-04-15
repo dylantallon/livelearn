@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Header from "../Components/Header";
 import "./FRQ.css";
 
@@ -13,12 +14,13 @@ interface FRQProps {
   onNext: () => void;
 }
 
-const FRQ: React.FC<FRQProps> = ({ question, onSubmit, onShowAnswer,onNext }) => {
+const FRQ: React.FC<FRQProps> = ({ question, onSubmit, onShowAnswer, onNext }) => {
   const hasImage = !!question.image;
   const [input, setInput] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const location = useLocation();
+  const isDisplay = location.pathname === "/display";
 
-  // Reset input and submission state on question change
   useEffect(() => {
     setInput("");
     setSubmitted(false);
@@ -55,8 +57,11 @@ const FRQ: React.FC<FRQProps> = ({ question, onSubmit, onShowAnswer,onNext }) =>
             placeholder="Type your answer here..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            disabled={isDisplay}
           />
         </div>
+
+        {!isDisplay && (
           <div className="button-row-bottom">
             {!submitted ? (
               <button
@@ -77,9 +82,9 @@ const FRQ: React.FC<FRQProps> = ({ question, onSubmit, onShowAnswer,onNext }) =>
               </>
             )}
           </div>
-        </div>
+        )}
       </div>
-
+    </div>
   );
 };
 

@@ -1,6 +1,6 @@
-
-import React, { useState,useEffect } from "react";
-import "./MCQ.css"; 
+import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import "./MCQ.css";
 import Header from "../Components/Header";
 
 interface MCQProps {
@@ -9,14 +9,16 @@ interface MCQProps {
 }
 
 const MCQ: React.FC<MCQProps> = ({ question, onAnswer }) => {
-  const hasImage =  !!question.image;
+  const hasImage = !!question.image;
   const [selected, setSelected] = useState<string>("");
+  const location = useLocation();
+  const isDisplay = location.pathname === "/display";
 
   useEffect(() => {
     setSelected("");
   }, [question]);
 
- return (
+  return (
     <div className="mcontainer">
       <Header />
       <div className={`main-container ${hasImage ? "has-image" : "no-image"}`}>
@@ -37,30 +39,32 @@ const MCQ: React.FC<MCQProps> = ({ question, onAnswer }) => {
         <div className="choices-box">
           {question.options.map((option, index) => (
             <div
-            key={index}
-            className={`choice ${selected === option ? "result-selected-answer" : ""}`}
-            onClick={() => setSelected(option)}
-          >
-            {option}
-          </div>
+              key={index}
+              className={`choice ${selected === option ? "result-selected-answer" : ""} ${
+                isDisplay ? "disabled-choice" : ""
+              }`}
+              onClick={() => !isDisplay && setSelected(option)}
+              style={{ pointerEvents: isDisplay ? "none" : "auto" }}
+            >
+              {option}
+            </div>
           ))}
         </div>
 
-        <div className="button-row-bottom">
-        <button
-          className="next-btn"
-          onClick={() => onAnswer(selected)}
-          disabled={!selected}
-           >
-          Submit
-        </button>
-        </div>
+        {!isDisplay && (
+          <div className="button-row-bottom">
+            <button
+              className="next-btn"
+              onClick={() => onAnswer(selected)}
+              disabled={!selected}
+            >
+              Submit
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
 export default MCQ;
-
-
-

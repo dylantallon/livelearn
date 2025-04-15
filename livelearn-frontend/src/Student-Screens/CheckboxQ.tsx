@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import Header from "../Components/Header";
 import "./MCQ.css";
 
@@ -13,16 +14,17 @@ interface CheckboxProps {
 
 const Checkbox: React.FC<CheckboxProps> = ({ question, onSubmit }) => {
   const [selected, setSelected] = useState<string[]>([]);
+  const location = useLocation();
+  const isDisplay = location.pathname === "/display";
 
   useEffect(() => {
     setSelected([]); // reset when question changes
   }, [question]);
 
   const toggleOption = (option: string) => {
-    setSelected(prev =>
-      prev.includes(option)
-        ? prev.filter(o => o !== option)
-        : [...prev, option]
+    if (isDisplay) return;
+    setSelected((prev) =>
+      prev.includes(option) ? prev.filter((o) => o !== option) : [...prev, option]
     );
   };
 
@@ -45,21 +47,29 @@ const Checkbox: React.FC<CheckboxProps> = ({ question, onSubmit }) => {
             {question.options.map((option, idx) => (
               <div
                 key={idx}
-                className={`choice ${selected.includes(option) ? "result-selected-answer" : ""}`}
+                className={`choice ${selected.includes(option) ? "result-selected-answer" : ""} ${
+                  isDisplay ? "disabled-choice" : ""
+                }`}
                 onClick={() => toggleOption(option)}
+                style={{ pointerEvents: isDisplay ? "none" : "auto" }}
               >
                 {option}
               </div>
             ))}
           </div>
+
+          {!isDisplay && (
             <div className="button-row-bottom">
-            <button className="next-btn" onClick={() => onSubmit(selected)} disabled={selected.length === 0}>
+              <button
+                className="next-btn"
+                onClick={() => onSubmit(selected)}
+                disabled={selected.length === 0}
+              >
                 Submit
-            </button>
+              </button>
             </div>
+          )}
         </div>
-
-
       </div>
     </>
   );
