@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState, useContext } from "react";
 import { useLocation } from "react-router-dom";
 import { db } from "../firebase";
@@ -249,6 +248,7 @@ const StudentScreen: React.FC = () => {
 
           if (data.showAnswer) {
             if (current) {
+              // Set the correct answer for display purposes
               if (current.type === "MCQ") {
                 setLastCorrectAnswer(current.answer);
               } else if (current.type === "FRQ") {
@@ -257,7 +257,9 @@ const StudentScreen: React.FC = () => {
                 setLastCorrectAnswer(current.answers.join(", "));
               }
 
+              // Only update UI display for no-answer case, no Firebase updates
               if (noAnswer) {
+                // Set empty answer for display purposes only
                 if (current.type === "MCQ") setLastUserAnswer("");
                 else if (current.type === "FRQ") setLastUserAnswer("");
                 else if (current.type === "Checkbox") setLastUserAnswer([]);
@@ -269,11 +271,11 @@ const StudentScreen: React.FC = () => {
                   return updated;
                 });
                 
-                // Save a score of 0 to Firestore if no answer submitted when teacher shows answer
-                if (!isDisplay && user?.uid && data.pollId) {
-                  const emptyAnswer = current.type === "Checkbox" ? [] : "";
-                  saveScoreToFirestore(data.pollId, data.questionIndex, emptyAnswer, 0);
-                }
+                // REMOVE THIS BLOCK - this is causing the Firebase update on show answer
+                // if (!isDisplay && user?.uid && data.pollId) {
+                //   const emptyAnswer = current.type === "Checkbox" ? [] : "";
+                //   saveScoreToFirestore(data.pollId, data.questionIndex, emptyAnswer, 0);
+                // }
               }
             }
 
