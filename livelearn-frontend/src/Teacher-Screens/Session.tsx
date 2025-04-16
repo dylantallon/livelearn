@@ -234,6 +234,11 @@ export default function Session() {
                 initialImages={currentQuestion.images ?? []}
                 initialPoints={currentQuestion.points ?? 1}
                 answers={currentQuestion.answers ?? []}
+                pollId={pollId}
+                courseId={courseId}
+                questionIndex={currentQuestionIndex}
+                activeUsers={activeUsers}
+                userAnswered={userAnswered}
               />
             )}
             {currentQuestion?.type === "checkbox" && (
@@ -244,7 +249,12 @@ export default function Session() {
                 initialImages={currentQuestion.images ?? []}
                 initialPoints={currentQuestion.points ?? 1}
                 answers={currentQuestion.answers ?? []}
-              />
+                pollId={pollId}
+                courseId={courseId}
+                questionIndex={currentQuestionIndex}
+                activeUsers={activeUsers}
+                userAnswered={userAnswered}
+              />            
             )}
             {currentQuestion?.type === "text" && (
               <SessionText
