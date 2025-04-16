@@ -4,7 +4,6 @@ import {
   Box,
   Typography,
   Checkbox,
-  FormControlLabel,
   FormGroup,
   LinearProgress,
 } from "@mui/material";
@@ -107,39 +106,36 @@ export default function SessionCheckBox({
                 key={index}
                 sx={{
                   display: "flex",
-                  alignItems: "center",
+                  flexDirection: "column",
+                  alignItems: "stretch",
                   mb: 1.5,
-                  gap: 1,
+                  gap: 0.5,
                 }}
               >
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={answers.includes(choice)}
-                      disabled={!answers.includes(choice)}
-                      sx={{ ml: 0 }}
-                    />
-                  }
-                  label={
-                    <Typography sx={{ wordBreak: "break-word", pr: 1 }}>
-                      {choice}
-                    </Typography>
-                  }
-                  sx={{
-                    flex: "0 0 auto",
-                    m: 0,
-                    pr: 1,
-                    alignItems: "center",
-                  }}
-                />
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <Checkbox
+                    checked={answers.includes(choice)}
+                    disabled={!answers.includes(choice)}
+                    sx={{ paddingRight: 1 }}
+                  />
+                  <Typography
+                    sx={{
+                      wordBreak: "break-word",
+                      paddingRight: 2,
+                      fontWeight: 500,
+                    }}
+                  >
+                    {choice}
+                  </Typography>
+                </Box>
 
-                <Box sx={{ flex: 1, display: "flex", alignItems: "center" }}>
+                <Box sx={{ display: "flex", alignItems: "center", width: "100%", pl: 4 }}>
                   <LinearProgress
                     variant="determinate"
                     value={percent}
                     sx={{
                       height: 8,
-                      flex: 1,
+                      flexGrow: 1,
                       borderRadius: 5,
                       mr: 1,
                     }}
