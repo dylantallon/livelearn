@@ -262,7 +262,11 @@ export default function Session() {
                 initialQuestion={currentQuestion.title}
                 initialImages={currentQuestion.images ?? []}
                 initialPoints={currentQuestion.points ?? 1}
-                answers={currentQuestion.answers ?? []}
+                pollId={pollId}
+                courseId={courseId}
+                questionIndex={currentQuestionIndex}
+                userAnswered={userAnswered}
+                correctAnswers={currentQuestion.answers ?? []}
               />
             )}
           </div>
