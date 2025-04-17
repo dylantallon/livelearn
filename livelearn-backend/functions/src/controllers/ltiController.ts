@@ -31,6 +31,7 @@ interface canvasPayload {
     "course_id": string,
     "api_domain": string,
   },
+  name: string,
 }
 
 class LtiController {
@@ -69,11 +70,12 @@ class LtiController {
     logger.log("LTI launch request received");
 
     try {
+      const {state, id_token} = req.body;
       // Verify state
-      if (!req.body.state) {
+      if (!state || !id_token) {
         return requestHandler.sendClientError(req, res, "Invalid LTI request", 400);
       }
-      const paramsDoc = await db.collection("temp").doc(req.body.state).get();
+      const paramsDoc = await db.collection("temp").doc(state).get();
       const data = paramsDoc.data();
       if (!data || !data.iss || !data.clientID) {
         return requestHandler.sendClientError(req, res, "Invalid LTI request", 400);
@@ -81,11 +83,11 @@ class LtiController {
       await paramsDoc.ref.delete();
 
       // Fetch public JWK from Canvas to verify JWT
-      const decodedJWT = decode(req.body.id_token, {complete: true});
+      const decodedJWT = decode(id_token, {complete: true});
       const response = await fetch("https://sso.canvaslms.com/api/lti/security/jwks");
       const canvasJWK = await response.json();
       const matchingKey = canvasJWK.keys.find((key: any) => key.kid === decodedJWT?.header.kid);
-      verify(req.body.id_token, jwkToBuffer(matchingKey), {
+      verify(id_token, jwkToBuffer(matchingKey), {
         audience: data.clientID,
         issuer: data.iss,
       });
@@ -97,7 +99,8 @@ class LtiController {
       const course_id = payload["https://purl.imsglobal.org/spec/lti/claim/custom"].course_id;
       const user_id = payload["https://purl.imsglobal.org/spec/lti/claim/custom"].user_id;
       const api_domain = payload["https://purl.imsglobal.org/spec/lti/claim/custom"].api_domain;
-      if (!course_id || !user_id || !api_domain || !context_title || !roles) {
+      const name = payload.name;
+      if (!course_id || !user_id || !api_domain || !context_title || !roles || !name) {
         return requestHandler.sendClientError(req, res, "Missing required LTI parameters", 400);
       }
 
@@ -129,6 +132,7 @@ class LtiController {
           courseId: courseId,
           courseName: context_title,
           userId: userId,
+          userName: name,
           createdAt: FieldValue.serverTimestamp(),
         });
 
@@ -158,6 +162,7 @@ class LtiController {
       const loginId = await getAuth().createCustomToken(userId, {
         courseId: courseId,
         role: role,
+        name: name,
       });
       return requestHandler.sendRedirect(res, `https://${livelearnDomain}?token=${loginId}`);
     }
@@ -189,9 +194,10 @@ class LtiController {
       const courseId = paramsDoc.data()?.courseId;
       const courseName = paramsDoc.data()?.courseName;
       const userId = paramsDoc.data()?.userId;
+      const userName = paramsDoc.data()?.userName;
 
       // Check if required parameters are present in state
-      if (!courseId || !courseName || !userId) {
+      if (!courseId || !courseName || !userId || !userName) {
         return requestHandler.sendClientError(req, res, "Missing required parameters", 400);
       }
 
@@ -231,6 +237,7 @@ class LtiController {
       const loginId = await getAuth().createCustomToken(userId, {
         courseId: courseId,
         role: "Instructor",
+        name: userName,
       });
       return requestHandler.sendRedirect(res, `https://${livelearnDomain}?token=${loginId}`);
     }
