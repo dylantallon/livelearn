@@ -6,6 +6,7 @@ import { db, auth } from "../firebase";
 
 interface AuthContextType {
   user: User | null;
+  name: string;
   loading: boolean;
   error: string | null;
   role: string;
@@ -14,6 +15,7 @@ interface AuthContextType {
 
 export const AuthContext = createContext<AuthContextType>({
   user: null,
+  name: "",
   loading: true,
   error: null,
   role: "",
@@ -22,6 +24,7 @@ export const AuthContext = createContext<AuthContextType>({
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [name, setName] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [role, setRole] = useState("");
@@ -40,6 +43,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           throw new Error("Course ID is null");
         }
         setCourseId(courseId);
+        
+        // Get current user's name
+        const name = tokenResult.claims.name;
+        if (typeof name !== "string") {
+          throw new Error("User name is null");
+        }
+        setName(name);
 
         // Get current user role
         const course = await getDoc(doc(db, "courses", courseId));
@@ -55,6 +65,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           throw new Error("Course does not exist");
         }
         setUser(currentUser);
+        setError(null);
       }
       catch (error) {
         console.error(error);
@@ -69,7 +80,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, error, role, courseId }}>
+    <AuthContext.Provider value={{ user, name, loading, error, role, courseId }}>
       {children}
     </AuthContext.Provider>
   );

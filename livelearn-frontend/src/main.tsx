@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./Components/AuthContext.tsx";
 
+import ProtectedRoute from "./Components/ProtectedRoute.tsx";
 import Start from "./Start.tsx";
 import Poll from "./Teacher-Screens/Poll.tsx";
 import Score from "./Teacher-Screens/Score.tsx";
@@ -19,13 +20,17 @@ const App = () => {
     <AuthProvider>
       <Routes>
         <Route path="/" element={<Start />} />
-        <Route path="/poll" element={<Poll />} />
-        <Route path="/scores" element={<Score />} />
-        <Route path="/edit" element={<Edit />} />
-        <Route path="/session" element={<Session />} />
-        <Route path="/display" element={<StudentScreen />} />
-        <Route path="/quiz" element={<StudentScreen />} />
-        <Route path="/finished" element={<FinalScreen />} />
+        <Route element={<ProtectedRoute requiredRole="Instructor"/>}>
+          <Route path="/poll" element={<Poll />} />
+          <Route path="/scores" element={<Score />} />
+          <Route path="/edit" element={<Edit />} />
+          <Route path="/session" element={<Session />} />
+        </Route>
+        <Route element={<ProtectedRoute requiredRole="Learner"/>}>
+          <Route path="/display" element={<StudentScreen />} />
+          <Route path="/quiz" element={<StudentScreen />} />
+          <Route path="/finished" element={<FinalScreen />} />
+        </Route>
         <Route path="/testpoll" element={<TestPoll />} />
       </Routes>
     </AuthProvider>
