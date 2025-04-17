@@ -25,9 +25,9 @@ const App = () => {
           <Route path="/scores" element={<Score />} />
           <Route path="/edit" element={<Edit />} />
           <Route path="/session" element={<Session />} />
+          <Route path="/display" element={<StudentScreen />} />
         </Route>
         <Route element={<ProtectedRoute requiredRole="Learner"/>}>
-          <Route path="/display" element={<StudentScreen />} />
           <Route path="/quiz" element={<StudentScreen />} />
           <Route path="/finished" element={<FinalScreen />} />
         </Route>
