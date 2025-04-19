@@ -12,7 +12,7 @@ import {
   getInstructorRoles,
   getAssistantRoles,
   getObserverRoles,
-  getCanvasId,
+  // getCanvasId,
   getClientIdAndSecret,
 } from "../utils/LtiUtils";
 import {livelearnDomain, functionUrl} from "../utils/constants";
@@ -224,13 +224,13 @@ class LtiController {
       });
 
       // Create assignment category for polls
-      const response = await requestHandler.sendCanvasRequest(
-        `/api/v1/courses/${getCanvasId(courseId)}/assignment_groups?name=LiveLearn`,
-        "POST", courseId, false, false,
-      );
-      await courseRef.update({
-        assignmentCategory: response.id,
-      });
+      // const response = await requestHandler.sendCanvasRequest(
+      //   `/api/v1/courses/${getCanvasId(courseId)}/assignment_groups?name=LiveLearn`,
+      //   "POST", courseId, false, false,
+      // );
+      // await courseRef.update({
+      //   assignmentCategory: response.id,
+      // });
       await paramsRef.delete();
 
       // Return auth token to log in user

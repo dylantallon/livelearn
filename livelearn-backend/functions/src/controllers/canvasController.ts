@@ -41,7 +41,7 @@ class CanvasController {
           );
         }
         catch (error) {
-          if (error instanceof Error && error.message.includes("resource does not exist")) {
+          if (error instanceof Error && !error.message.includes("unauthorized")) {
             lineItemId = null;
           }
         }
