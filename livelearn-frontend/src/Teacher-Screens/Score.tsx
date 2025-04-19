@@ -51,7 +51,7 @@ function Score() {
           const earnedPoints = data.points ?? 0;
 
           studentScores.push({
-            name: docSnap.id, // Or replace with actual name field if stored
+            name: data.name, // Or replace with actual name field if stored
             score: `${earnedPoints}/${totalPoints}`
           });
         });

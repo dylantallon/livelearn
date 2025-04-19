@@ -43,7 +43,7 @@ const FinalScreenWrapper: React.FC<{ score: number; total: number }> = ({ score,
 };
 
 const StudentScreen: React.FC = () => {
-  const { courseId, user } = useContext(AuthContext);
+  const { courseId, user, name } = useContext(AuthContext);
   const location = useLocation();
   const isDisplay = location.pathname === "/display";
 
@@ -74,7 +74,8 @@ const StudentScreen: React.FC = () => {
       // Create a fresh document for this poll session 
       const scoresRef = firestoreDoc(db, `polls/${pollId}/scores/${user.uid}`);
       await setDoc(scoresRef, {
-        points: 0
+        points: 0,
+        name: name
       });
       console.log("Score document reset for new session");
     } catch (error) {
@@ -106,6 +107,7 @@ const StudentScreen: React.FC = () => {
       // Create or update document with structure matching the screenshot
       await setDoc(scoresRef, {
         points: totalPoints, // Total points at top level
+        name: name,
         questions: {
           [questionIndex]: {
             answer: formattedAnswer,
@@ -138,7 +140,8 @@ const StudentScreen: React.FC = () => {
             try {
               const scoresRef = firestoreDoc(db, `polls/${lastPollId.current}/scores/${user.uid}`);
               await setDoc(scoresRef, {
-                points: totalScore // Update total points
+                points: totalScore, // Update total points
+                name: name
               }, { merge: true });
               console.log("Final score saved:", totalScore);
             } catch (error) {
@@ -364,6 +367,7 @@ const StudentScreen: React.FC = () => {
         const scoresRef = firestoreDoc(db, `polls/${lastPollId.current}/scores/${user.uid}`);
         setDoc(scoresRef, {
           points: totalScore,
+          name: name
         }, { merge: true }).catch(err => console.error("Error saving final score:", err));
       }
       
@@ -379,7 +383,7 @@ const StudentScreen: React.FC = () => {
       return (
         <div
           style={{
-            height: "100 vh",
+            height: "100vh",
             backgroundColor: "#2f2b2b",
             display: "flex",
             flexDirection: "column",
@@ -388,16 +392,16 @@ const StudentScreen: React.FC = () => {
           <Header />
           <div
             style={{
-              flex: 1,
+              flexGrow: 1,
               display: "flex",
-              flexDirection: "column",
               justifyContent: "center",
               alignItems: "center",
               color: "white",
-              fontSize: "1.5rem",
             }}
           >
-            <div style={{fontSize: "3rem"}}>Session Ended...</div>
+            <div style={{ fontSize: "3rem", textAlign: "center" }}>
+              Session Ended...
+            </div>
           </div>
         </div>
       );

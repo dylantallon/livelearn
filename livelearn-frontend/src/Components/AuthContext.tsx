@@ -96,6 +96,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 // interface AuthContextType {
 //   user: User | null;
+//   name: string;
 //   loading: boolean;
 //   error: string | null;
 //   role: string;
@@ -104,6 +105,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 // export const AuthContext = createContext<AuthContextType>({
 //   user: null,
+//   name: "",
 //   loading: true,
 //   error: null,
 //   role: "",
@@ -112,6 +114,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 // export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 //   const [user, setUser] = useState<User | null>(null);
+//   const [name, setName] = useState("");
 //   const [loading, setLoading] = useState(true);
 //   const [error, setError] = useState<string | null>(null);
 //   const [role, setRole] = useState("");
@@ -133,6 +136,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 //         setCourseId("test-course");
 //         setRole("Instructor");
+//         setName("Test Name");
 
 //         const mockUser = {
 //           ...currentUser,
@@ -155,7 +159,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 //   }, []);
 
 //   return (
-//     <AuthContext.Provider value={{ user, loading, error, role, courseId }}>
+//     <AuthContext.Provider value={{ user, name, loading, error, role, courseId }}>
 //       {children}
 //     </AuthContext.Provider>
 //   );
