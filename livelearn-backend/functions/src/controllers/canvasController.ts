@@ -26,7 +26,7 @@ class CanvasController {
         return requestHandler.sendClientError(req, res, "Poll ID does not exist", 400);
       }
       const scores = await pollDoc.ref.collection("scores").get();
-      if (!scores.docs.length) {
+      if (scores.size === 0) {
         return requestHandler.sendClientError(req, res, "Poll does not have any scores", 400);
       }
       const canvasCourseId = getCanvasId(pollData.courseId);
