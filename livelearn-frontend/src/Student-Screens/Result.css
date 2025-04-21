@@ -4,7 +4,7 @@
 html, body {
     margin: 0;
     padding: 0;
-    overflow: auto;
+    overflow: hidden;
     height: 100%;
   }
   
@@ -15,7 +15,6 @@ html, body {
     height: 85vh; /* Full viewport height */
     width: 100vw;
     background-color: #2f2b2b;
-    overflow: hidden;
   }
   
   /* Main container to align question & choices */
@@ -34,7 +33,7 @@ html, body {
     margin: 0 auto;
     padding: 20px;
     gap: 0.5rem;
-    overflow: auto;
+    overflow-x: hidden;
 
   }
   

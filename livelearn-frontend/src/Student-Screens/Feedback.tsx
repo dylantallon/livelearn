@@ -18,8 +18,9 @@ const Feedback: React.FC<FeedbackProps> = ({ question, userAnswer, correctAnswer
   const hasImage = !!question.image;
 
   return (
+    <>
+    <Header />
     <div className="result-main">
-      <Header />
       <div className={`result-container ${hasImage ? "has-image" : "no-image"}`}>
         <div className="result-question-box">
           <p className="result-question-text">{question.question}</p>
@@ -60,6 +61,7 @@ const Feedback: React.FC<FeedbackProps> = ({ question, userAnswer, correctAnswer
         </button>
       </div> */}
     </div>
+    </>
   );
 };
 

@@ -13,8 +13,10 @@ const Result: React.FC<ResultProps> = ({ question, userAnswer}) => {
   const hasImage = !!question.image;
 
   return (
-    <div className="result-main">
+    <>
       <Header />
+    <div className="result-main">
+      
       <div className={`result-container ${hasImage ? "has-image" : "no-image"}`}>
         <div className="result-question-box">
           <p className="result-question-text">{question.question}</p>
@@ -55,6 +57,7 @@ const Result: React.FC<ResultProps> = ({ question, userAnswer}) => {
         </button>
       </div> */}
     </div>
+    </>
   );
 };
 

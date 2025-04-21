@@ -19,8 +19,9 @@ const MCQ: React.FC<MCQProps> = ({ question, onAnswer }) => {
   }, [question]);
 
   return (
+    <>
+      <Header /> 
     <div className="mcontainer">
-      <Header />
       <div className={`main-container ${hasImage ? "has-image" : "no-image"}`}>
         <div className="question-box">
           <p className="question-text">{question.question}</p>
@@ -64,6 +65,7 @@ const MCQ: React.FC<MCQProps> = ({ question, onAnswer }) => {
         )}
       </div>
     </div>
+    </>
   );
 };
 

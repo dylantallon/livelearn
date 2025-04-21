@@ -274,11 +274,6 @@ const StudentScreen: React.FC = () => {
                   return updated;
                 });
                 
-                // REMOVE THIS BLOCK - this is causing the Firebase update on show answer
-                // if (!isDisplay && user?.uid && data.pollId) {
-                //   const emptyAnswer = current.type === "Checkbox" ? [] : "";
-                //   saveScoreToFirestore(data.pollId, data.questionIndex, emptyAnswer, 0);
-                // }
               }
             }
 

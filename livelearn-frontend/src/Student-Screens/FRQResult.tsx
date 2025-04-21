@@ -13,8 +13,10 @@ const FRQResult: React.FC<FRQResultProps> = ({ question, userAnswer}) => {
   const hasImage = !!question.image;
 
   return (
+    <>
+    <Header />
     <div className="mcontainer">
-      <Header />
+      
       <div className={`main-container ${hasImage ? "has-image" : "no-image"}`}>
         <div className="frq-question-box">
           <p className="question-text">{question.question}</p>
@@ -44,6 +46,7 @@ const FRQResult: React.FC<FRQResultProps> = ({ question, userAnswer}) => {
         </button>
       </div> */}
     </div>
+    </>
   );
 };
 

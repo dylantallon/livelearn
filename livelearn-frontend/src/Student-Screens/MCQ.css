@@ -12,7 +12,7 @@ html, body {
   height: 85vh; /* Full viewport height */
   width: 100vw;
   background-color: #2f2b2b;
-  overflow: hidden;
+  overflow: auto;
 }
 
 /* Main container to align question & choices */
@@ -24,7 +24,6 @@ html, body {
   width: 100%;
   flex-direction: column;
   align-items: center; /* Center vertically */
-  height: auto; /* Take full screen height minus header */
   background-color: #767474;
   border-radius: 1rem;
   max-width: 900px;
@@ -32,8 +31,6 @@ html, body {
   padding: 20px;
   gap: 0.5rem;
   max-height: calc(100vh - 80px); /* fits in screen */
-  overflow: auto;
-
 }
 
 /* Question and Choices should be centered */

@@ -34,8 +34,10 @@ const FRQ: React.FC<FRQProps> = ({ question, onSubmit,}) => {
   };
 
   return (
-    <div className="mcontainer">
+    <>
       <Header />
+    <div className="mcontainer">
+
       <div className={`main-container ${hasImage ? "has-image" : "no-image"}`}>
         <div className="frq-question-box">
           <p className="question-text">{question.question}</p>
@@ -74,6 +76,7 @@ const FRQ: React.FC<FRQProps> = ({ question, onSubmit,}) => {
         )}
       </div>
     </div>
+    </>
   );
 };
 
